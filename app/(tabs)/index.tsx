@@ -59,7 +59,7 @@ export default function HomeScreen() {
         <CategoryButton
           title={t('emergencyLocations')}
           icon="location"
-          onPress={() => router.push('/emergency-locations/index' as never)}
+          onPress={() => router.push('/emergency-locations' as never)}
           accent={colors.danger}
         />
         <CategoryButton

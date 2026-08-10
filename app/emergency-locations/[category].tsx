@@ -97,9 +97,16 @@ function buildMapHtml(
 }
 
 export default function EmergencyLocationCategoryScreen() {
-  const { category: categoryId } = useLocalSearchParams<{ category: string }>();
+  const params = useLocalSearchParams<{ category?: string | string[] }>();
   const { language, t } = useLanguage();
   const webRef = useRef<WebView>(null);
+
+  const categoryId = useMemo(() => {
+    const raw = params.category;
+    const value = Array.isArray(raw) ? raw[0] : raw;
+    if (!value || value === 'index') return undefined;
+    return value;
+  }, [params.category]);
 
   const category = useMemo(
     () => (categoryId ? getLocationCategory(categoryId) : undefined),
