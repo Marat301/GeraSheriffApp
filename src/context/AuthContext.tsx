@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Language, USState, UserProfile } from '../types';
+import { PreferredLanguage, USState, UserProfile } from '../types';
+import { normalizePreferred } from '../i18n/languages';
 
 const USERS_KEY = '@gera_users';
 const SESSION_KEY = '@gera_session';
@@ -12,15 +13,19 @@ type AuthContextValue = {
     name: string;
     email: string;
     password: string;
-    language: Language;
+    language: PreferredLanguage;
     state: USState;
   }) => Promise<{ ok: true } | { ok: false; error: string }>;
   signIn: (
     email: string,
     password: string,
-  ) => Promise<{ ok: true } | { ok: false; error: string }>;
+  ) => Promise<
+    { ok: true; language: PreferredLanguage } | { ok: false; error: string }
+  >;
   signOut: () => Promise<void>;
-  updateProfile: (patch: Partial<Pick<UserProfile, 'name' | 'language' | 'state'>>) => Promise<void>;
+  updateProfile: (
+    patch: Partial<Pick<UserProfile, 'name' | 'language' | 'state'>>
+  ) => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
   continueAsGuest: () => void;
   isGuest: boolean;
@@ -30,7 +35,11 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 async function loadUsers(): Promise<UserProfile[]> {
   const raw = await AsyncStorage.getItem(USERS_KEY);
-  return raw ? (JSON.parse(raw) as UserProfile[]) : [];
+  const users = raw ? (JSON.parse(raw) as UserProfile[]) : [];
+  return users.map((u) => ({
+    ...u,
+    language: normalizePreferred(u.language as string),
+  }));
 }
 
 async function saveUsers(users: UserProfile[]) {
@@ -85,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(SESSION_KEY, found.id);
     setIsGuest(false);
     setUser(found);
-    return { ok: true };
+    return { ok: true, language: normalizePreferred(found.language as string) };
   }, []);
 
   const signOut = useCallback(async () => {

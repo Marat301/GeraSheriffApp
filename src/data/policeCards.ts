@@ -34,4 +34,33 @@ export const policeCards: PoliceCard[] = [
     phraseRu: 'Я не понимаю английский. Пожалуйста, предоставьте русского переводчика.',
     color: colors.danger,
   },
+  {
+    id: 'pc5',
+    titleEn: 'I need help',
+    titleRu: 'Мне нужна помощь',
+    phraseEn: 'I need help. Please help me.',
+    phraseRu: 'Мне нужна помощь. Пожалуйста, помогите мне.',
+    color: colors.warning,
+    variants: [
+      {
+        id: 'medical',
+        titleEn: 'I need medical help',
+        titleRu: 'Мне нужна медицинская помощь',
+        phraseEn: 'I need medical help. Please call an ambulance.',
+        phraseRu: 'Мне нужна медицинская помощь. Пожалуйста, вызовите скорую.',
+      },
+    ],
+  },
 ];
+
+/** Primary + optional variant phrases for a card */
+export function getPoliceCardPhrases(card: PoliceCard) {
+  const primary = {
+    id: 'primary',
+    titleEn: card.titleEn,
+    titleRu: card.titleRu,
+    phraseEn: card.phraseEn,
+    phraseRu: card.phraseRu,
+  };
+  return [primary, ...(card.variants ?? [])];
+}

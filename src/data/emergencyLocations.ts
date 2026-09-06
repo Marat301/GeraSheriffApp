@@ -26,6 +26,8 @@ export type LocationCategory = {
   nameRu: string;
   /** Overpass QL filters inside an (around:...) block — without the around itself */
   overpassFilters: string[];
+  /** Greyed out on the list — not searchable yet */
+  comingSoon?: boolean;
 };
 
 /** Central Florida fallback when location permission is denied */
@@ -153,8 +155,9 @@ export const locationCategories: LocationCategory[] = [
   {
     id: 'attorneys',
     emoji: '👔',
-    nameEn: 'Attorneys',
-    nameRu: 'Адвокаты',
+    nameEn: 'Gera Sheriff Partner Attorneys',
+    nameRu: 'Адвокаты-партнёры Gera Sheriff',
+    comingSoon: true,
     overpassFilters: [
       'node["office"="lawyer"]',
       'way["office"="lawyer"]',

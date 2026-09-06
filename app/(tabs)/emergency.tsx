@@ -14,6 +14,14 @@ const iconMap: Record<string, keyof typeof Ionicons.glyphMap> = {
   car: 'car',
   medkit: 'medkit',
   home: 'home',
+  people: 'people',
+  warning: 'warning',
+  call: 'call',
+  heart: 'heart',
+  business: 'business',
+  globe: 'globe',
+  'hand-left': 'hand-left',
+  'document-text': 'document-text',
 };
 
 export default function EmergencyScreen() {

@@ -8,9 +8,14 @@ import { Screen } from '../../src/components/Screen';
 import { TextField } from '../../src/components/TextField';
 import { useAuth } from '../../src/context/AuthContext';
 import { useLanguage } from '../../src/context/LanguageContext';
+import {
+  LANGUAGE_TOGGLE_CODE,
+  PREFERRED_LANGUAGE_LABEL_KEY,
+  PREFERRED_LANGUAGES,
+} from '../../src/i18n/languages';
 import { TranslationKey } from '../../src/i18n/translations';
 import { colors, radius, spacing } from '../../src/theme/colors';
-import { Language, USState } from '../../src/types';
+import { PreferredLanguage, USState } from '../../src/types';
 
 const STATES: { id: USState; labelKey: TranslationKey }[] = [
   { id: 'FL', labelKey: 'florida' },
@@ -19,7 +24,7 @@ const STATES: { id: USState; labelKey: TranslationKey }[] = [
 ];
 
 export default function ProfileScreen() {
-  const { t, language, setLanguage } = useLanguage();
+  const { t, preferredLanguage, setPreferredLanguage } = useLanguage();
   const { user, isGuest, updateProfile, signOut } = useAuth();
   const router = useRouter();
   const [name, setName] = useState(user?.name ?? '');
@@ -30,17 +35,59 @@ export default function ProfileScreen() {
     if (user) {
       setName(user.name);
       setState(user.state);
+      // Sync preferred pair from profile without kicking the user out of English
+      void setPreferredLanguage(user.language, { activate: false });
     }
-  }, [user]);
+  }, [user, setPreferredLanguage]);
 
   const onSave = async () => {
     if (!user) return;
     setSaving(true);
-    await updateProfile({ name, state, language: language as Language });
-    await setLanguage(language);
+    await updateProfile({ name, state, language: preferredLanguage });
     setSaving(false);
     Alert.alert(t('saved'));
   };
+
+  const onSelectPreferred = async (lang: PreferredLanguage) => {
+    await setPreferredLanguage(lang);
+  };
+
+  const languageSection = (
+    <View style={styles.section}>
+      <AppText variant="label" style={{ marginBottom: spacing.xs }}>
+        {t('language')}
+      </AppText>
+      <AppText muted style={{ marginBottom: spacing.md }}>
+        {t('languagePairHint')}
+      </AppText>
+      {PREFERRED_LANGUAGES.map((lang) => {
+        const active = preferredLanguage === lang;
+        return (
+          <Pressable
+            key={lang}
+            onPress={() => void onSelectPreferred(lang)}
+            style={[styles.langChip, active && styles.langActive]}
+          >
+            <View style={{ flex: 1 }}>
+              <AppText color={active ? colors.white : colors.textSecondary}>
+                {t(PREFERRED_LANGUAGE_LABEL_KEY[lang])}
+              </AppText>
+              <AppText
+                variant="caption"
+                color={active ? '#BBDEFB' : colors.textMuted}
+                style={{ marginTop: 2 }}
+              >
+                {LANGUAGE_TOGGLE_CODE[lang]}/EN
+              </AppText>
+            </View>
+          </Pressable>
+        );
+      })}
+      <View style={styles.toggleRow}>
+        <LanguageToggle />
+      </View>
+    </View>
+  );
 
   if (isGuest || !user) {
     return (
@@ -49,12 +96,7 @@ export default function ProfileScreen() {
         <AppText muted style={{ marginVertical: spacing.md }}>
           {t('loginRequired')}
         </AppText>
-        <View style={{ marginBottom: spacing.md }}>
-          <AppText variant="label" style={{ marginBottom: spacing.sm }}>
-            {t('language')}
-          </AppText>
-          <LanguageToggle />
-        </View>
+        {languageSection}
         <Button title={t('signIn')} onPress={() => router.push('/(auth)/login')} />
         <Button
           title={t('signUp')}
@@ -75,12 +117,7 @@ export default function ProfileScreen() {
 
       <TextField label={t('name')} value={name} onChangeText={setName} />
 
-      <AppText variant="label" style={{ marginBottom: spacing.sm }}>
-        {t('language')}
-      </AppText>
-      <View style={{ marginBottom: spacing.md }}>
-        <LanguageToggle />
-      </View>
+      {languageSection}
 
       <AppText variant="label" style={{ marginBottom: spacing.sm }}>
         {t('state')}
@@ -121,6 +158,25 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  section: {
+    marginBottom: spacing.lg,
+  },
+  langChip: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  langActive: {
+    borderColor: colors.blue,
+    backgroundColor: colors.blueMuted,
+  },
+  toggleRow: {
+    marginTop: spacing.sm,
+    alignItems: 'flex-start',
+  },
   stateChip: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,

@@ -1,18 +1,22 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
+import { LANGUAGE_TOGGLE_CODE } from '../i18n/languages';
 import { colors, radius, spacing } from '../theme/colors';
 
 export function LanguageToggle() {
-  const { language, setLanguage } = useLanguage();
+  const { language, preferredLanguage, setLanguage } = useLanguage();
+  const pairCode = LANGUAGE_TOGGLE_CODE[preferredLanguage];
 
   return (
     <View style={styles.wrap}>
       <Pressable
-        onPress={() => setLanguage('ru')}
-        style={[styles.chip, language === 'ru' && styles.active]}
+        onPress={() => setLanguage(preferredLanguage)}
+        style={[styles.chip, language === preferredLanguage && styles.active]}
       >
-        <Text style={[styles.text, language === 'ru' && styles.activeText]}>RU</Text>
+        <Text style={[styles.text, language === preferredLanguage && styles.activeText]}>
+          {pairCode}
+        </Text>
       </Pressable>
       <Pressable
         onPress={() => setLanguage('en')}

@@ -28,7 +28,9 @@ const SLIDES: Slide[] = [
   { icon: 'chatbubbles', titleKey: 'tutorialPoliceTitle', bodyKey: 'tutorialPoliceBody' },
   { icon: 'newspaper', titleKey: 'tutorialArticlesTitle', bodyKey: 'tutorialArticlesBody' },
   { icon: 'book', titleKey: 'tutorialGlossaryTitle', bodyKey: 'tutorialGlossaryBody' },
-  { icon: 'person', titleKey: 'tutorialProfileTitle', bodyKey: 'tutorialProfileBody' },
+  { icon: 'scale', titleKey: 'tutorialLawLibraryTitle', bodyKey: 'tutorialLawLibraryBody' },
+  { icon: 'git-commit', titleKey: 'tutorialCaseRoadmapTitle', bodyKey: 'tutorialCaseRoadmapBody' },
+  { icon: 'settings-outline', titleKey: 'tutorialProfileTitle', bodyKey: 'tutorialProfileBody' },
 ];
 
 type Props = {

@@ -83,6 +83,13 @@ function elementToPlace(
     tags['addr:state'],
   ].filter(Boolean);
 
+  const phone =
+    tags.phone ||
+    tags['contact:phone'] ||
+    tags['phone:US'] ||
+    tags['contact:mobile'] ||
+    tags.mobile;
+
   return {
     id: `${el.type}/${el.id}`,
     name,
@@ -90,11 +97,17 @@ function elementToPlace(
     longitude,
     distanceMeters: haversineMeters(originLat, originLon, latitude, longitude),
     address: addressParts.length ? addressParts.join(' ') : tags['addr:full'],
-    phone: tags.phone || tags['contact:phone'],
+    phone: phone || undefined,
   };
 }
 
-export function formatDistance(meters: number, language: 'en' | 'ru'): string {
+/** Digits (and leading +) for tel: links */
+export function toTelUrl(phone: string): string {
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  return `tel:${cleaned}`;
+}
+
+export function formatDistance(meters: number, language: string): string {
   if (meters < 1000) {
     return language === 'ru' ? `${Math.round(meters)} м` : `${Math.round(meters)} m`;
   }

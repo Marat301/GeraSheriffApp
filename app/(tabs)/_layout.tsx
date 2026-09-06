@@ -58,7 +58,7 @@ export default function TabsLayout() {
         options={{
           title: t('profile'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="settings-outline" size={size} color={color} />
           ),
         }}
       />

@@ -1,14 +1,16 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import * as Speech from 'expo-speech';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '../../src/components/AppText';
+import { Button } from '../../src/components/Button';
 import { Screen } from '../../src/components/Screen';
 import { SpeakCircleButton } from '../../src/components/SpeakCircleButton';
+import { StackBackButton } from '../../src/components/StackBackButton';
 import { useLanguage } from '../../src/context/LanguageContext';
 import { emergencyGuides } from '../../src/data/emergency';
 import { policeCards } from '../../src/data/policeCards';
 import { colors, radius, spacing } from '../../src/theme/colors';
+import { stopSpeaking } from '../../src/utils/speak';
 
 /** Police-stop guide: step 4 (index 3) and step 6 (index 5) get TTS + cards link */
 const POLICE_STOP_SPEAK: Record<number, { phraseEn: string; cardId: string }> = {
@@ -22,15 +24,20 @@ const POLICE_STOP_SPEAK: Record<number, { phraseEn: string; cardId: string }> = 
   },
 };
 
+function mentions911(text: string) {
+  return /\b911\b/.test(text);
+}
+
 export default function EmergencyGuideScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id: idParam } = useLocalSearchParams<{ id?: string | string[] }>();
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const { language, t } = useLanguage();
   const router = useRouter();
   const guide = emergencyGuides.find((g) => g.id === id);
 
   useEffect(() => {
     return () => {
-      Speech.stop();
+      void stopSpeaking();
     };
   }, []);
 
@@ -48,15 +55,29 @@ export default function EmergencyGuideScreen() {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: t('emergencyGuides') }} />
+      <Stack.Screen
+        options={{
+          title: t('emergencyGuides'),
+          headerLeft: () => <StackBackButton />,
+        }}
+      />
       <AppText variant="title" style={{ marginBottom: spacing.md }}>
         {title}
       </AppText>
+
+      <Button
+        title={t('call911')}
+        variant="danger"
+        onPress={() => Linking.openURL('tel:911')}
+        style={{ marginBottom: spacing.md }}
+      />
+
       <AppText variant="label" style={{ marginBottom: spacing.sm }}>
         {t('steps')}
       </AppText>
       {steps.map((step, index) => {
         const speak = isPoliceStop ? POLICE_STOP_SPEAK[index] : undefined;
+        const show911 = mentions911(step);
         return (
           <View key={index} style={styles.step}>
             <View style={styles.num}>
@@ -66,6 +87,16 @@ export default function EmergencyGuideScreen() {
             </View>
             <View style={styles.stepBody}>
               <AppText style={{ flex: 1 }}>{step}</AppText>
+              {show911 ? (
+                <Pressable
+                  onPress={() => Linking.openURL('tel:911')}
+                  style={({ pressed }) => [styles.call911Chip, pressed && { opacity: 0.9 }]}
+                >
+                  <AppText variant="caption" color={colors.white} style={styles.call911Text}>
+                    {t('call911')}
+                  </AppText>
+                </Pressable>
+              ) : null}
               {speak ? (
                 <View style={styles.actions}>
                   <SpeakCircleButton
@@ -114,6 +145,16 @@ const styles = StyleSheet.create({
   stepBody: {
     flex: 1,
     gap: spacing.sm,
+  },
+  call911Chip: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.danger,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+  },
+  call911Text: {
+    fontWeight: '800',
   },
   actions: {
     flexDirection: 'row',

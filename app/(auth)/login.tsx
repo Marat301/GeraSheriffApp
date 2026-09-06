@@ -12,7 +12,7 @@ import { colors, radius, spacing } from '../../src/theme/colors';
 import { TranslationKey } from '../../src/i18n/translations';
 
 export default function LoginScreen() {
-  const { t } = useLanguage();
+  const { t, setPreferredLanguage } = useLanguage();
   const { signIn, continueAsGuest } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -31,6 +31,7 @@ export default function LoginScreen() {
       Alert.alert(t(result.error as TranslationKey));
       return;
     }
+    await setPreferredLanguage(result.language);
     router.replace('/(tabs)');
   };
 

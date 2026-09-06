@@ -7,7 +7,8 @@ import { articles } from '../../src/data/articles';
 import { spacing } from '../../src/theme/colors';
 
 export default function ArticleDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id: idParam } = useLocalSearchParams<{ id?: string | string[] }>();
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const { language, t } = useLanguage();
   const article = articles.find((a) => a.id === id);
 

@@ -1,26 +1,29 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
-import * as Speech from 'expo-speech';
 import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AppText } from '../../src/components/AppText';
 import { Button } from '../../src/components/Button';
 import { Screen } from '../../src/components/Screen';
+import { StackBackButton } from '../../src/components/StackBackButton';
 import { useLanguage } from '../../src/context/LanguageContext';
-import { policeCards } from '../../src/data/policeCards';
+import { getPoliceCardPhrases, policeCards } from '../../src/data/policeCards';
 import { colors, radius, spacing } from '../../src/theme/colors';
+import { speakPhrase, stopSpeaking } from '../../src/utils/speak';
 
 /** Always fixed — independent of RU/EN app preference */
 const SPEAK_ENGLISH_LABEL = 'Speak English';
 const SPEAK_RUSSIAN_LABEL = 'Говорить по-русски';
 
 export default function PoliceCardDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id: idParam } = useLocalSearchParams<{ id?: string | string[] }>();
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const { t } = useLanguage();
   const card = policeCards.find((c) => c.id === id);
+  const phrases = card ? getPoliceCardPhrases(card) : [];
 
   useEffect(() => {
     return () => {
-      Speech.stop();
+      void stopSpeaking();
     };
   }, []);
 
@@ -34,7 +37,12 @@ export default function PoliceCardDetailScreen() {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: t('policeCards') }} />
+      <Stack.Screen
+        options={{
+          title: t('policeCards'),
+          headerLeft: () => <StackBackButton />,
+        }}
+      />
       <View style={[styles.banner, { backgroundColor: card.color }]}>
         <AppText variant="hero" color={colors.white} style={{ textAlign: 'center' }}>
           {card.titleEn}
@@ -46,37 +54,57 @@ export default function PoliceCardDetailScreen() {
         >
           {card.titleRu}
         </AppText>
+        {phrases.length > 1 ? (
+          <AppText
+            variant="caption"
+            color="#BBDEFB"
+            style={{ textAlign: 'center', marginTop: spacing.sm }}
+          >
+            + {phrases[1].titleEn}
+          </AppText>
+        ) : null}
       </View>
 
-      <View style={styles.block}>
-        <AppText variant="label">English</AppText>
-        <AppText variant="subtitle" style={{ marginTop: spacing.sm }}>
-          {card.phraseEn}
-        </AppText>
-        <Button
-          title={SPEAK_ENGLISH_LABEL}
-          onPress={() => Speech.speak(card.phraseEn, { language: 'en-US' })}
-          style={{ marginTop: spacing.md }}
-        />
-      </View>
+      {phrases.map((phrase) => (
+        <View key={phrase.id} style={styles.block}>
+          <AppText variant="subtitle" color={colors.blueBright}>
+            {phrase.titleEn}
+          </AppText>
+          <AppText variant="caption" muted style={{ marginTop: 2 }}>
+            {phrase.titleRu}
+          </AppText>
 
-      <View style={styles.block}>
-        <AppText variant="label">Русский</AppText>
-        <AppText variant="subtitle" style={{ marginTop: spacing.sm }}>
-          {card.phraseRu}
-        </AppText>
-        <Button
-          title={SPEAK_RUSSIAN_LABEL}
-          variant="outline"
-          onPress={() => Speech.speak(card.phraseRu, { language: 'ru-RU' })}
-          style={{ marginTop: spacing.md }}
-        />
-      </View>
+          <AppText variant="label" style={{ marginTop: spacing.md }}>
+            English
+          </AppText>
+          <AppText variant="subtitle" style={{ marginTop: spacing.sm }}>
+            {phrase.phraseEn}
+          </AppText>
+          <Button
+            title={SPEAK_ENGLISH_LABEL}
+            onPress={() => void speakPhrase(phrase.phraseEn, { language: 'en-US' })}
+            style={{ marginTop: spacing.md }}
+          />
+
+          <AppText variant="label" style={{ marginTop: spacing.lg }}>
+            Русский
+          </AppText>
+          <AppText variant="subtitle" style={{ marginTop: spacing.sm }}>
+            {phrase.phraseRu}
+          </AppText>
+          <Button
+            title={SPEAK_RUSSIAN_LABEL}
+            variant="outline"
+            onPress={() => void speakPhrase(phrase.phraseRu, { language: 'ru-RU' })}
+            style={{ marginTop: spacing.md }}
+          />
+        </View>
+      ))}
 
       <Button
         title={t('stopSpeaking')}
         variant="secondary"
-        onPress={() => Speech.stop()}
+        onPress={() => void stopSpeaking()}
       />
     </Screen>
   );

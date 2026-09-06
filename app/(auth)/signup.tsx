@@ -9,7 +9,8 @@ import { useAuth } from '../../src/context/AuthContext';
 import { useLanguage } from '../../src/context/LanguageContext';
 import { TranslationKey } from '../../src/i18n/translations';
 import { colors, radius, spacing } from '../../src/theme/colors';
-import { Language, USState } from '../../src/types';
+import { USState } from '../../src/types';
+import { normalizePreferred } from '../../src/i18n/languages';
 
 const STATES: { id: USState; labelKey: TranslationKey; enabled: boolean }[] = [
   { id: 'FL', labelKey: 'florida', enabled: true },
@@ -18,7 +19,7 @@ const STATES: { id: USState; labelKey: TranslationKey; enabled: boolean }[] = [
 ];
 
 export default function SignUpScreen() {
-  const { t, language, setLanguage } = useLanguage();
+  const { t, preferredLanguage, setPreferredLanguage } = useLanguage();
   const { signUp } = useAuth();
   const router = useRouter();
   const [name, setName] = useState('');
@@ -38,11 +39,12 @@ export default function SignUpScreen() {
       return;
     }
     setLoading(true);
+    const preferred = normalizePreferred(preferredLanguage);
     const result = await signUp({
       name,
       email,
       password,
-      language: language as Language,
+      language: preferred,
       state,
     });
     setLoading(false);
@@ -50,7 +52,7 @@ export default function SignUpScreen() {
       Alert.alert(t(result.error as TranslationKey));
       return;
     }
-    await setLanguage(language);
+    await setPreferredLanguage(preferred);
     router.replace('/(tabs)');
   };
 

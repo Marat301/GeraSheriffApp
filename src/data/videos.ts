@@ -1,8 +1,11 @@
 import { VideoCategory, VideoItem } from '../types';
 
-/** Channel: https://www.youtube.com/@GeraSheriff (UCfs30KXj2Iynp-sP9Z8dILg) */
+/** Channel: https://www.youtube.com/@GeraSheriff */
 export const CHANNEL_URL = 'https://www.youtube.com/@GeraSheriff';
-export const FEATURED_VIDEO_ID = 'hPDfZk8wE_A';
+export const CHANNEL_ID = 'UCfs30KXj2Iynp-sP9Z8dILg';
+/** Fallback featured id if live YouTube fetch cannot be reached */
+export const FEATURED_VIDEO_ID = 'CKMpI4k8uWo';
+
 
 export const videoCategories: VideoCategory[] = [
   'police',

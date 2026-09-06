@@ -1,13 +1,15 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as Speech from 'expo-speech';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { colors } from '../theme/colors';
+import { speakPhrase } from '../utils/speak';
 
 type Props = {
   phrase: string;
+  /** Defaults to English — police phrases for officers in the US */
   language?: string;
   style?: ViewStyle;
+  size?: number;
   onLongPress?: () => void;
 };
 
@@ -15,29 +17,32 @@ export function SpeakCircleButton({
   phrase,
   language = 'en-US',
   style,
+  size = 48,
   onLongPress,
 }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Speak phrase"
-      onPress={() => {
-        Speech.stop();
-        Speech.speak(phrase, { language });
+      accessibilityLabel="Speak English"
+      onPress={(e) => {
+        e?.stopPropagation?.();
+        void speakPhrase(phrase, { language: language || 'en-US' });
       }}
       onLongPress={onLongPress}
-      style={({ pressed }) => [styles.btn, pressed && styles.pressed, style]}
+      style={({ pressed }) => [
+        styles.btn,
+        { width: size, height: size, borderRadius: size / 2 },
+        pressed && styles.pressed,
+        style,
+      ]}
     >
-      <Ionicons name="mic" size={22} color={colors.white} />
+      <MaterialCommunityIcons name="account-voice" size={size * 0.5} color={colors.white} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   btn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
     backgroundColor: colors.blue,
     alignItems: 'center',
     justifyContent: 'center',
