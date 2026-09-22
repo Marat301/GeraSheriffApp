@@ -3,19 +3,6 @@ export type PreferredLanguage = 'ru' | 'es' | 'pt' | 'ht';
 /** Active UI language — English or the user's preferred non-English language */
 export type Language = 'en' | PreferredLanguage;
 
-export type USState = 'FL' | 'CA' | 'NY';
-
-export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  /** Preferred non-English language paired with EN in the top toggle */
-  language: PreferredLanguage;
-  state: USState;
-  createdAt: string;
-}
-
 export interface VideoItem {
   id: string;
   youtubeId: string;

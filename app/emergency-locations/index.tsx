@@ -33,50 +33,26 @@ export default function EmergencyLocationsScreen() {
       </Pressable>
       {locationCategories.map((category) => {
         const name = language === 'ru' ? category.nameRu : category.nameEn;
-        const soon = !!category.comingSoon;
         return (
           <Pressable
             key={category.id}
-            disabled={soon}
-            onPress={() => {
-              if (soon) return;
+            onPress={() =>
               router.push({
                 pathname: '/emergency-locations/[category]',
                 params: { category: category.id },
-              });
-            }}
-            style={({ pressed }) => [
-              styles.card,
-              soon && styles.cardSoon,
-              !soon && pressed && { opacity: 0.85 },
-            ]}
+              })
+            }
+            style={({ pressed }) => [styles.card, pressed && { opacity: 0.85 }]}
           >
-            <View style={[styles.emojiWrap, soon && styles.emojiWrapSoon]}>
-              <AppText style={[styles.emoji, soon && styles.emojiSoon]}>{category.emoji}</AppText>
+            <View style={styles.emojiWrap}>
+              <AppText style={styles.emoji}>{category.emoji}</AppText>
             </View>
             <View style={styles.nameWrap}>
-              <AppText
-                variant="subtitle"
-                style={styles.name}
-                color={soon ? colors.textMuted : colors.textPrimary}
-              >
+              <AppText variant="subtitle" style={styles.name}>
                 {name}
               </AppText>
-              {soon ? (
-                <AppText variant="caption" color={colors.textMuted} style={{ marginTop: 2 }}>
-                  {t('partnerAttorneysSoon')}
-                </AppText>
-              ) : null}
             </View>
-            {soon ? (
-              <View style={styles.soonPill}>
-                <AppText variant="caption" color={colors.textMuted}>
-                  {t('comingSoon')}
-                </AppText>
-              </View>
-            ) : (
-              <AppText color={colors.blueBright}>→</AppText>
-            )}
+            <AppText color={colors.blueBright}>→</AppText>
           </Pressable>
         );
       })}
@@ -113,10 +89,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     gap: spacing.sm,
   },
-  cardSoon: {
-    opacity: 0.55,
-    backgroundColor: colors.blackSoft,
-  },
   emojiWrap: {
     width: 40,
     height: 40,
@@ -125,28 +97,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  emojiWrapSoon: {
-    backgroundColor: colors.border,
-  },
   emoji: {
     fontSize: 20,
-  },
-  emojiSoon: {
-    opacity: 0.7,
   },
   nameWrap: {
     flex: 1,
   },
   name: {
     flexShrink: 1,
-  },
-  soonPill: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    backgroundColor: colors.surface,
   },
   disclaimer: {
     marginTop: spacing.md,

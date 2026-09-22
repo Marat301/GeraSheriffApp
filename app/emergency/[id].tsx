@@ -9,20 +9,24 @@ import { StackBackButton } from '../../src/components/StackBackButton';
 import { useLanguage } from '../../src/context/LanguageContext';
 import { emergencyGuides } from '../../src/data/emergency';
 import { policeCards } from '../../src/data/policeCards';
+import { interpreterPhraseEn, localizeInterpreterMentions } from '../../src/i18n/contentLocale';
 import { colors, radius, spacing } from '../../src/theme/colors';
+import { PreferredLanguage } from '../../src/types';
 import { stopSpeaking } from '../../src/utils/speak';
 
 /** Police-stop guide: step 4 (index 3) and step 6 (index 5) get TTS + cards link */
-const POLICE_STOP_SPEAK: Record<number, { phraseEn: string; cardId: string }> = {
-  3: {
-    phraseEn: policeCards.find((c) => c.id === 'pc2')!.phraseEn,
-    cardId: 'pc2',
-  },
-  5: {
-    phraseEn: policeCards.find((c) => c.id === 'pc4')!.phraseEn,
-    cardId: 'pc4',
-  },
-};
+function policeStopSpeak(
+  preferredLanguage: PreferredLanguage
+): Record<number, { phraseEn: string }> {
+  return {
+    3: {
+      phraseEn: policeCards.find((c) => c.id === 'pc2')!.phraseEn,
+    },
+    5: {
+      phraseEn: interpreterPhraseEn(preferredLanguage),
+    },
+  };
+}
 
 function mentions911(text: string) {
   return /\b911\b/.test(text);
@@ -31,9 +35,10 @@ function mentions911(text: string) {
 export default function EmergencyGuideScreen() {
   const { id: idParam } = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(idParam) ? idParam[0] : idParam;
-  const { language, t } = useLanguage();
+  const { language, preferredLanguage, t } = useLanguage();
   const router = useRouter();
   const guide = emergencyGuides.find((g) => g.id === id);
+  const policeSpeak = policeStopSpeak(preferredLanguage);
 
   useEffect(() => {
     return () => {
@@ -50,7 +55,9 @@ export default function EmergencyGuideScreen() {
   }
 
   const title = language === 'ru' ? guide.titleRu : guide.titleEn;
-  const steps = language === 'ru' ? guide.stepsRu : guide.stepsEn;
+  const steps = (language === 'ru' ? guide.stepsRu : guide.stepsEn).map((step) =>
+    localizeInterpreterMentions(step, preferredLanguage)
+  );
   const isPoliceStop = guide.id === 'eg1';
 
   return (
@@ -76,7 +83,7 @@ export default function EmergencyGuideScreen() {
         {t('steps')}
       </AppText>
       {steps.map((step, index) => {
-        const speak = isPoliceStop ? POLICE_STOP_SPEAK[index] : undefined;
+        const speak = isPoliceStop ? policeSpeak[index] : undefined;
         const show911 = mentions911(step);
         return (
           <View key={index} style={styles.step}>
@@ -99,11 +106,7 @@ export default function EmergencyGuideScreen() {
               ) : null}
               {speak ? (
                 <View style={styles.actions}>
-                  <SpeakCircleButton
-                    phrase={speak.phraseEn}
-                    language="en-US"
-                    onLongPress={() => router.push(`/police-cards/${speak.cardId}`)}
-                  />
+                  <SpeakCircleButton phrase={speak.phraseEn} language="en-US" />
                   <Pressable onPress={() => router.push('/police-cards')}>
                     <AppText variant="caption" color={colors.blueBright}>
                       {t('openPoliceCards')} →

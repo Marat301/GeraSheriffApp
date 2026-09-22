@@ -6,6 +6,7 @@ import { Screen } from '../../../src/components/Screen';
 import { StackBackButton } from '../../../src/components/StackBackButton';
 import { useLanguage } from '../../../src/context/LanguageContext';
 import { findStatuteByCode } from '../../../src/data/criminalStatutes';
+import { localizeInterpreterMentions } from '../../../src/i18n/contentLocale';
 import { colors, radius, spacing } from '../../../src/theme/colors';
 
 function Section({
@@ -28,7 +29,7 @@ function Section({
 export default function StatuteDetailScreen() {
   const { code: codeParam } = useLocalSearchParams<{ code: string }>();
   const code = Array.isArray(codeParam) ? codeParam[0] : codeParam;
-  const { language, t } = useLanguage();
+  const { language, preferredLanguage, t } = useLanguage();
   const statute = findStatuteByCode(code ?? '');
 
   if (!statute) {
@@ -47,6 +48,7 @@ export default function StatuteDetailScreen() {
 
   const title = language === 'ru' ? statute.titleRu : statute.titleEn;
   const level = language === 'ru' ? statute.levelRu : statute.levelEn;
+  const localize = (text: string) => localizeInterpreterMentions(text, preferredLanguage);
 
   return (
     <Screen>
@@ -74,19 +76,19 @@ export default function StatuteDetailScreen() {
 
       <Section
         label={t('statuteExplanation')}
-        body={language === 'ru' ? statute.explanationRu : statute.explanationEn}
+        body={localize(language === 'ru' ? statute.explanationRu : statute.explanationEn)}
       />
       <Section
         label={t('statutePenalties')}
-        body={language === 'ru' ? statute.penaltiesRu : statute.penaltiesEn}
+        body={localize(language === 'ru' ? statute.penaltiesRu : statute.penaltiesEn)}
       />
       <Section
         label={t('statuteProcess')}
-        body={language === 'ru' ? statute.processRu : statute.processEn}
+        body={localize(language === 'ru' ? statute.processRu : statute.processEn)}
       />
       <Section
         label={t('statuteObservations')}
-        body={language === 'ru' ? statute.observationsRu : statute.observationsEn}
+        body={localize(language === 'ru' ? statute.observationsRu : statute.observationsEn)}
       />
 
       <AppText variant="caption" style={{ marginTop: spacing.md, marginBottom: spacing.lg }}>

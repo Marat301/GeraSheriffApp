@@ -72,7 +72,7 @@ export const criminalStatutes: CriminalStatute[] = [
     observationsEn:
       '“Deadly weapon” can include objects used in a way likely to cause death or great bodily harm — not only guns. Do not discuss the incident on social media.',
     observationsRu:
-      '“Deadly weapon” может включать предметы, использованные так, что вероятен смерть или тяжкий вред — не только огнестрельное. Не обсуждайте дело в соцсетях.',
+      '“Deadly weapon” может включать предметы, использованные так, что вероятны смерть или тяжкий вред — не только огнестрельное. Не обсуждайте дело в соцсетях.',
   },
   {
     code: '784.011',
@@ -229,7 +229,7 @@ export const criminalStatutes: CriminalStatute[] = [
     processEn:
       'Body-cam and officer testimony are central. Arraignment and plea talks are common. Challenge issues (was the duty lawful?) belong in court with a lawyer — not in a roadside argument.',
     processRu:
-      'Ключевы body-cam и показания офицера. Часты arraignment и переговоры. Вопросы «законна ли была обязанность?» — в суде с адвокатом, не в споре на месте.',
+      'Ключевые body-cam и показания офицера. Часты arraignment и переговоры. Вопросы «законна ли была обязанность?» — в суде с адвокатом, не в споре на месте.',
     observationsEn:
       'Physical resistance can become a more serious charge (resist with violence). Keep hands visible and do not pull away if you can safely comply.',
     observationsRu:

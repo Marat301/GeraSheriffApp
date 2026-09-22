@@ -35,7 +35,9 @@ function buildMapHtml(
   longitude: number,
   places: NearbyPlace[],
   selectedId: string | null,
-  showUser: boolean
+  showUser: boolean,
+  youLabel: string,
+  approxLabel: string
 ): string {
   const markers = places.map((p) => ({
     id: p.id,
@@ -44,6 +46,7 @@ function buildMapHtml(
     name: p.name,
     selected: p.id === selectedId,
   }));
+  const userPopup = JSON.stringify(showUser ? youLabel : approxLabel);
 
   return `<!DOCTYPE html>
 <html>
@@ -95,9 +98,10 @@ function buildMapHtml(
 
     L.marker([${latitude}, ${longitude}], { icon: youIcon, zIndexOffset: 1000 })
       .addTo(map)
-      .bindPopup(${showUser ? "'You'" : "'Approx.'"});
+      .bindPopup(${userPopup});
 
     const bounds = L.latLngBounds([[${latitude}, ${longitude}]]);
+    const placeMarkers = {};
     places.forEach((p) => {
       const color = p.selected ? '#E53935' : '#1E5EFF';
       const icon = L.divIcon({
@@ -112,8 +116,23 @@ function buildMapHtml(
       marker.on('click', () => {
         window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'select', id: p.id }));
       });
+      placeMarkers[p.id] = marker;
       bounds.extend([p.lat, p.lng]);
     });
+
+    window.setSelectedPlace = function(id) {
+      Object.keys(placeMarkers).forEach(function(key) {
+        var color = key === id ? '#E53935' : '#1E5EFF';
+        placeMarkers[key].setIcon(L.divIcon({
+          className: '',
+          html: pinIconHtml(color),
+          iconSize: [28, 42],
+          iconAnchor: [14, 38],
+          popupAnchor: [0, -34],
+        }));
+      });
+    };
+
     if (places.length) map.fitBounds(bounds.pad(0.2));
   </script>
 </body>
@@ -149,6 +168,7 @@ export default function EmergencyLocationCategoryScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mapEpoch, setMapEpoch] = useState(0);
+  const loadGenRef = useRef(0);
 
   const title = category
     ? `${category.emoji} ${language === 'ru' ? category.nameRu : category.nameEn}`
@@ -169,6 +189,7 @@ export default function EmergencyLocationCategoryScreen() {
 
   const load = useCallback(async () => {
     if (!category) return;
+    const gen = ++loadGenRef.current;
     setLoading(true);
     setError(null);
 
@@ -190,19 +211,26 @@ export default function EmergencyLocationCategoryScreen() {
       fallback = true;
     }
 
+    if (gen !== loadGenRef.current) return;
+
     setCoords({ latitude, longitude });
     setUsingFallback(fallback);
 
     try {
       const results = await fetchNearbyPlaces(category, latitude, longitude);
+      if (gen !== loadGenRef.current) return;
       setPlaces(results);
       if (results[0]) setSelectedId(results[0].id);
+      else setSelectedId(null);
       setMapEpoch((n) => n + 1);
     } catch {
+      if (gen !== loadGenRef.current) return;
       setPlaces([]);
+      setSelectedId(null);
       setError(errorMessageRef.current);
+      setMapEpoch((n) => n + 1);
     } finally {
-      setLoading(false);
+      if (gen === loadGenRef.current) setLoading(false);
     }
   }, [category]);
 
@@ -238,6 +266,9 @@ export default function EmergencyLocationCategoryScreen() {
         if (typeof map !== 'undefined') {
           map.panTo([${place.latitude}, ${place.longitude}], { animate: true });
         }
+        if (typeof window.setSelectedPlace === 'function') {
+          window.setSelectedPlace(${JSON.stringify(place.id)});
+        }
         true;
       })();
     `);
@@ -250,7 +281,9 @@ export default function EmergencyLocationCategoryScreen() {
         coords.longitude,
         places,
         selectedId,
-        !usingFallback
+        !usingFallback,
+        t('locationsMapYou'),
+        t('locationsMapApprox')
       ),
     // Remount map only when search results / position change (mapEpoch), not on language
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -299,6 +332,14 @@ export default function EmergencyLocationCategoryScreen() {
             };
             if (data.type === 'select' && data.id) {
               setSelectedId(data.id);
+              webRef.current?.injectJavaScript(`
+                (function() {
+                  if (typeof window.setSelectedPlace === 'function') {
+                    window.setSelectedPlace(${JSON.stringify(data.id)});
+                  }
+                  true;
+                })();
+              `);
             }
           } catch {
             // ignore

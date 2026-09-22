@@ -43,6 +43,24 @@ export default function EmergencyScreen() {
       />
 
       <Pressable
+        onPress={() => router.push('/emergency-locations' as never)}
+        style={styles.locationsBanner}
+        accessibilityRole="button"
+        accessibilityLabel={t('emergencyLocations')}
+      >
+        <Ionicons name="navigate" size={24} color={colors.white} />
+        <View style={{ flex: 1, marginLeft: spacing.md }}>
+          <AppText variant="subtitle" color={colors.white}>
+            {t('emergencyLocations')}
+          </AppText>
+          <AppText variant="caption" color="#C8E6C9" numberOfLines={2}>
+            {t('emergencyLocationsIntro')}
+          </AppText>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={colors.white} />
+      </Pressable>
+
+      <Pressable
         onPress={() => router.push('/police-cards')}
         style={styles.cardsBanner}
       >
@@ -85,6 +103,14 @@ export default function EmergencyScreen() {
 }
 
 const styles = StyleSheet.create({
+  locationsBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.success,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
   cardsBanner: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -6,6 +6,9 @@ export const CHANNEL_ID = 'UCfs30KXj2Iynp-sP9Z8dILg';
 /** Fallback featured id if live YouTube fetch cannot be reached */
 export const FEATURED_VIDEO_ID = 'CKMpI4k8uWo';
 
+/** Shared placeholder used by static catalogue rows until real per-video ids are curated */
+export const CATALOGUE_PLACEHOLDER_ID = 'hPDfZk8wE_A';
+
 
 export const videoCategories: VideoCategory[] = [
   'police',
@@ -96,6 +99,14 @@ export function videosByCategory(category: VideoCategory) {
 
 export function youtubeWatchUrl(youtubeId: string) {
   return `https://www.youtube.com/watch?v=${youtubeId}`;
+}
+
+/** Placeholder catalogue rows open the channel instead of a misleading single video */
+export function resolveVideoOpenUrl(youtubeId: string) {
+  if (youtubeId === CATALOGUE_PLACEHOLDER_ID) {
+    return CHANNEL_URL;
+  }
+  return youtubeWatchUrl(youtubeId);
 }
 
 export function youtubeEmbedUrl(youtubeId: string) {

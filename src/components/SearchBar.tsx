@@ -39,17 +39,17 @@ export function SearchBar({
 
   if (onPress) {
     return (
-      <Pressable onPress={onPress} style={styles.press}>
+      <Pressable onPress={onPress} style={styles.outer}>
         {content}
       </Pressable>
     );
   }
 
-  return content;
+  return <View style={styles.outer}>{content}</View>;
 }
 
 const styles = StyleSheet.create({
-  press: {
+  outer: {
     marginBottom: spacing.md,
   },
   wrap: {
@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     minHeight: 46,
     gap: spacing.sm,
-    marginBottom: spacing.md,
   },
   input: {
     flex: 1,

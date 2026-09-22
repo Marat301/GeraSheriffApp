@@ -3,7 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import React from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
-import { youtubeWatchUrl } from '../data/videos';
+import { CATALOGUE_PLACEHOLDER_ID, FEATURED_VIDEO_ID, resolveVideoOpenUrl } from '../data/videos';
 import { colors, radius, spacing } from '../theme/colors';
 import { AppText } from './AppText';
 
@@ -15,12 +15,14 @@ type Props = {
 
 export function VideoCard({ youtubeId, title, badge }: Props) {
   const { t } = useLanguage();
-  const thumb = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+  const thumbId =
+    youtubeId === CATALOGUE_PLACEHOLDER_ID ? FEATURED_VIDEO_ID : youtubeId;
+  const thumb = `https://img.youtube.com/vi/${thumbId}/hqdefault.jpg`;
 
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-      onPress={() => WebBrowser.openBrowserAsync(youtubeWatchUrl(youtubeId))}
+      onPress={() => WebBrowser.openBrowserAsync(resolveVideoOpenUrl(youtubeId))}
     >
       <View style={styles.thumbWrap}>
         <Image source={{ uri: thumb }} style={styles.thumb} />

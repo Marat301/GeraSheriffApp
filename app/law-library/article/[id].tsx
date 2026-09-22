@@ -6,12 +6,13 @@ import { Screen } from '../../../src/components/Screen';
 import { StackBackButton } from '../../../src/components/StackBackButton';
 import { useLanguage } from '../../../src/context/LanguageContext';
 import { getLawLibraryArticle, getLawLibraryCategory } from '../../../src/data/lawLibrary';
+import { localizeInterpreterMentions } from '../../../src/i18n/contentLocale';
 import { colors, radius, spacing } from '../../../src/theme/colors';
 
 export default function LawLibraryArticleScreen() {
   const { id: idParam } = useLocalSearchParams<{ id: string }>();
   const id = Array.isArray(idParam) ? idParam[0] : idParam;
-  const { language, t } = useLanguage();
+  const { language, preferredLanguage, t } = useLanguage();
   const article = getLawLibraryArticle(id ?? '');
   const category = article ? getLawLibraryCategory(article.categoryId) : undefined;
 
@@ -30,7 +31,10 @@ export default function LawLibraryArticleScreen() {
   }
 
   const title = language === 'ru' ? article.titleRu : article.titleEn;
-  const body = language === 'ru' ? article.bodyRu : article.bodyEn;
+  const body = localizeInterpreterMentions(
+    language === 'ru' ? article.bodyRu : article.bodyEn,
+    preferredLanguage
+  );
   const categoryTitle = category
     ? language === 'ru'
       ? category.titleRu

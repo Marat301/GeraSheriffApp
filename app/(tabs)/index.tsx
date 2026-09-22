@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -8,7 +8,6 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-nat
 import { AppText } from '../../src/components/AppText';
 import { CategoryButton } from '../../src/components/CategoryButton';
 import { Screen } from '../../src/components/Screen';
-import { SearchBar } from '../../src/components/SearchBar';
 import { useLanguage } from '../../src/context/LanguageContext';
 import { CHANNEL_URL, FEATURED_VIDEO_ID, youtubeWatchUrl } from '../../src/data/videos';
 import { fetchLatestVideo } from '../../src/services/youtubeFeed';
@@ -45,11 +44,11 @@ export default function HomeScreen() {
   );
 
   return (
-    <Screen>
+    <Screen showTutorial>
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <AppText variant="label" color={colors.blueBright}>
-            USA · FLORIDA
+            {t('regionLabel')}
           </AppText>
           <View style={styles.brandRow}>
             <AppText variant="hero" style={styles.brandTitle}>
@@ -65,41 +64,42 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <SearchBar
-        value=""
-        onChangeText={() => {}}
-        placeholder={t('searchPlaceholder')}
-        editable={false}
-        onPress={() => router.push('/search')}
+      <AppText variant="label" style={styles.sectionLabel}>
+        {t('homeNow')}
+      </AppText>
+      <CategoryButton
+        wide
+        title={t('emergency')}
+        icon="warning"
+        onPress={() => router.push('/(tabs)/emergency')}
+        accent={colors.danger}
+      />
+      <CategoryButton
+        wide
+        title={t('emergencyLocations')}
+        icon="location"
+        onPress={() => router.push('/emergency-locations' as never)}
+        accent={colors.danger}
+      />
+      <CategoryButton
+        wide
+        title={t('policeCards')}
+        icon="chatbubbles"
+        onPress={() => router.push('/police-cards')}
+        accent={colors.blueBright}
+      />
+      <CategoryButton
+        wide
+        title={t('translator')}
+        icon="language"
+        onPress={() => router.push('/translator' as never)}
+        accent={colors.blueBright}
       />
 
       <AppText variant="label" style={styles.sectionLabel}>
-        {t('categories')}
+        {t('homeLearn')}
       </AppText>
       <View style={styles.grid}>
-        <CategoryButton
-          title={t('emergencyGuides')}
-          icon="medkit"
-          onPress={() => router.push('/(tabs)/emergency')}
-          accent={colors.danger}
-        />
-        <CategoryButton
-          title={t('emergencyLocations')}
-          icon="location"
-          onPress={() => router.push('/emergency-locations' as never)}
-          accent={colors.danger}
-        />
-        <CategoryButton
-          title={t('policeCards')}
-          icon="chatbubbles"
-          onPress={() => router.push('/police-cards')}
-          accent={colors.blueBright}
-        />
-        <CategoryButton
-          title={t('catalogue')}
-          icon="library"
-          onPress={() => router.push('/(tabs)/library')}
-        />
         <CategoryButton
           title={t('caseRoadmap')}
           icon="git-commit"
@@ -119,11 +119,6 @@ export default function HomeScreen() {
           title={t('articles')}
           icon="newspaper"
           onPress={() => router.push('/articles')}
-        />
-        <CategoryButton
-          title={t('youtubeLibrary')}
-          icon="logo-youtube"
-          onPress={() => router.push('/(tabs)/library')}
         />
       </View>
 
@@ -151,33 +146,16 @@ export default function HomeScreen() {
           </AppText>
         </LinearGradient>
       </Pressable>
-      <Pressable onPress={() => WebBrowser.openBrowserAsync(CHANNEL_URL)}>
-        <AppText color={colors.blueBright} style={{ marginBottom: spacing.lg }}>
-          youtube.com/@GeraSheriff →
-        </AppText>
+      <Pressable
+        onPress={() => WebBrowser.openBrowserAsync(CHANNEL_URL)}
+        style={({ pressed }) => [styles.ytBtn, pressed && styles.ytBtnPressed]}
+        accessibilityRole="button"
+        accessibilityLabel={t('viewYouTubeChannel')}
+      >
+        <Ionicons name="logo-youtube" size={22} color="#FF0000" />
+        <AppText style={styles.ytBtnText}>{t('viewYouTubeChannel')}</AppText>
+        <Ionicons name="open-outline" size={16} color={colors.textMuted} />
       </Pressable>
-
-      <AppText variant="label" style={styles.sectionLabel}>
-        {t('modulesComingSoon')}
-      </AppText>
-      {(
-        [
-          { key: 'aiAssistant', icon: 'sparkles' as const },
-          { key: 'liveWorkshops', icon: 'videocam' as const },
-        ] as const
-      ).map((item) => (
-        <View key={item.key} style={styles.soonCard}>
-          <Ionicons name={item.icon} size={20} color={colors.textMuted} />
-          <AppText muted style={{ flex: 1, marginLeft: spacing.sm }}>
-            {t(item.key)}
-          </AppText>
-          <View style={styles.soonPill}>
-            <AppText variant="caption" color={colors.blueBright}>
-              {t('comingSoon')}
-            </AppText>
-          </View>
-        </View>
-      ))}
 
       <AppText variant="caption" style={styles.disclaimer}>
         {t('disclaimer')}
@@ -249,21 +227,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing.sm,
   },
-  soonCard: {
+  ytBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+    borderRadius: radius.md,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.lg,
   },
-  soonPill: {
-    backgroundColor: colors.blueGlow,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radius.full,
+  ytBtnPressed: {
+    opacity: 0.88,
+  },
+  ytBtnText: {
+    flex: 1,
+    fontWeight: '700',
+    fontSize: 15,
+    color: colors.textPrimary,
   },
   disclaimer: {
     marginTop: spacing.lg,

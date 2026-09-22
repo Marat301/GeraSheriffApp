@@ -1,38 +1,14 @@
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { LanguageOnboardingModal } from '../src/components/LanguageOnboardingModal';
 import { StackBackButton } from '../src/components/StackBackButton';
-import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { LanguageProvider, useLanguage } from '../src/context/LanguageContext';
 import { colors } from '../src/theme/colors';
 
 function RootNavigator() {
-  const { user, loading, isGuest } = useAuth();
   const { t } = useLanguage();
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loading) return;
-    const inAuth = segments[0] === '(auth)';
-    const signedIn = !!user || isGuest;
-
-    if (!signedIn && !inAuth) {
-      router.replace('/(auth)/login');
-    } else if (user && inAuth) {
-      router.replace('/(tabs)');
-    }
-  }, [user, isGuest, loading, segments, router]);
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, backgroundColor: colors.black, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color={colors.blue} />
-      </View>
-    );
-  }
 
   const backHeader = {
     headerLeft: () => <StackBackButton />,
@@ -43,6 +19,7 @@ function RootNavigator() {
   return (
     <>
       <StatusBar style="light" />
+      <LanguageOnboardingModal />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.blackSoft },
@@ -54,7 +31,6 @@ function RootNavigator() {
           headerBackButtonDisplayMode: 'minimal',
         }}
       >
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="search" options={{ title: t('search'), ...backHeader }} />
         <Stack.Screen name="articles/index" options={{ title: t('articles'), ...backHeader }} />
@@ -69,8 +45,8 @@ function RootNavigator() {
           options={{ title: t('policeCards'), ...backHeader }}
         />
         <Stack.Screen
-          name="police-cards/[id]"
-          options={{ title: t('policeCards'), ...backHeader }}
+          name="translator/index"
+          options={{ title: t('translator'), ...backHeader }}
         />
         <Stack.Screen name="glossary/index" options={{ title: t('glossary'), ...backHeader }} />
         <Stack.Screen
@@ -118,9 +94,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LanguageProvider>
-        <AuthProvider>
-          <RootNavigator />
-        </AuthProvider>
+        <RootNavigator />
       </LanguageProvider>
     </GestureHandlerRootView>
   );

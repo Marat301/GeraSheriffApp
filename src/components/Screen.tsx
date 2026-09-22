@@ -22,15 +22,14 @@ export function Screen({
   style,
   padded = true,
   showLanguageToggle = true,
-  showTutorial = true,
+  showTutorial = false,
 }: Props) {
   const segments = useSegments();
   const [tutorialOpen, setTutorialOpen] = useState(false);
 
   // Stack screens already have a nav header — skip top safe-area to avoid empty black bar
   const inTabs = segments[0] === '(tabs)';
-  const inAuth = segments[0] === '(auth)';
-  const applyTopInset = inTabs || inAuth;
+  const applyTopInset = inTabs;
   const edges = applyTopInset
     ? (['top', 'left', 'right'] as const)
     : (['left', 'right'] as const);

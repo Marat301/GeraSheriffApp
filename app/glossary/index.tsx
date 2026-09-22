@@ -61,15 +61,17 @@ export default function GlossaryScreen() {
       ) : (
         filtered.map((term) => {
           const name = language === 'ru' ? term.termRu : term.termEn;
-          const alt = language === 'ru' ? term.termEn : term.termRu;
+          const alt = language === 'ru' ? term.termEn : language === 'en' ? term.termRu : null;
           const definition = language === 'ru' ? term.definitionRu : term.definitionEn;
           const highlighted = highlightId === term.id;
           return (
             <View key={term.id} style={[styles.card, highlighted && styles.cardHighlight]}>
               <AppText variant="subtitle">{name}</AppText>
-              <AppText variant="caption" color={colors.blueBright} style={{ marginTop: 2 }}>
-                {alt}
-              </AppText>
+              {alt ? (
+                <AppText variant="caption" color={colors.blueBright} style={{ marginTop: 2 }}>
+                  {alt}
+                </AppText>
+              ) : null}
               <AppText muted style={{ marginTop: spacing.sm }}>
                 {definition}
               </AppText>

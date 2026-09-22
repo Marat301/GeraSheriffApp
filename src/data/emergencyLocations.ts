@@ -8,7 +8,6 @@ export type LocationCategoryId =
   | 'courthouses'
   | 'clerkOfCourts'
   | 'childCare'
-  | 'attorneys'
   | 'legalAid'
   | 'shelters'
   | 'domesticViolence'
@@ -26,8 +25,6 @@ export type LocationCategory = {
   nameRu: string;
   /** Overpass QL filters inside an (around:...) block — without the around itself */
   overpassFilters: string[];
-  /** Greyed out on the list — not searchable yet */
-  comingSoon?: boolean;
 };
 
 /** Central Florida fallback when location permission is denied */
@@ -128,7 +125,7 @@ export const locationCategories: LocationCategory[] = [
     id: 'clerkOfCourts',
     emoji: '📋',
     nameEn: 'Clerk of Courts',
-    nameRu: 'Клерк суда',
+    nameRu: 'Clerk of Courts (суд. канцелярия)',
     overpassFilters: [
       'node["office"="government"]["name"~"[Cc]lerk"]',
       'way["office"="government"]["name"~"[Cc]lerk"]',
@@ -142,7 +139,7 @@ export const locationCategories: LocationCategory[] = [
     id: 'childCare',
     emoji: '👶',
     nameEn: 'Child Care',
-    nameRu: 'Детский уход',
+    nameRu: 'Уход за детьми',
     overpassFilters: [
       'node["amenity"="childcare"]',
       'way["amenity"="childcare"]',
@@ -150,19 +147,6 @@ export const locationCategories: LocationCategory[] = [
       'way["amenity"="kindergarten"]',
       'node["amenity"="nursery"]',
       'way["amenity"="nursery"]',
-    ],
-  },
-  {
-    id: 'attorneys',
-    emoji: '👔',
-    nameEn: 'Gera Sheriff Partner Attorneys',
-    nameRu: 'Адвокаты-партнёры Gera Sheriff',
-    comingSoon: true,
-    overpassFilters: [
-      'node["office"="lawyer"]',
-      'way["office"="lawyer"]',
-      'node["office"="attorney"]',
-      'way["office"="attorney"]',
     ],
   },
   {

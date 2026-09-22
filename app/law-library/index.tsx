@@ -45,9 +45,7 @@ export default function LawLibraryScreen() {
         <View style={{ flex: 1 }}>
           <AppText variant="subtitle">{t('statuteLookup')}</AppText>
           <AppText muted style={{ marginTop: 4 }}>
-            {language === 'ru'
-              ? 'Цифровая панель · например 784.03'
-              : 'Number pad · e.g. 784.03'}
+            {t('statuteLookupHint')}
           </AppText>
         </View>
         <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />

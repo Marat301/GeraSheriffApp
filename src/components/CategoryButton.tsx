@@ -26,17 +26,26 @@ export function CategoryButton({ title, icon, onPress, accent = colors.blue, wid
       onPress={onPress}
       style={({ pressed }) => [
         styles.btn,
-        wide && styles.wide,
+        wide ? styles.wide : null,
         { borderColor: accent },
         pressed && styles.pressed,
       ]}
     >
-      <View style={[styles.iconWrap, { backgroundColor: withAlpha(accent, 0.22) }]}>
-        <Ionicons name={icon} size={22} color={accent} />
+      <View
+        style={[
+          styles.iconWrap,
+          wide && styles.iconWrapWide,
+          { backgroundColor: withAlpha(accent, 0.22) },
+        ]}
+      >
+        <Ionicons name={icon} size={wide ? 24 : 22} color={accent} />
       </View>
-      <Text style={styles.title} numberOfLines={2}>
+      <Text style={[styles.title, wide && styles.titleWide]} numberOfLines={2}>
         {title}
       </Text>
+      {wide ? (
+        <Ionicons name="chevron-forward" size={18} color={accent} style={styles.chevron} />
+      ) : null}
     </Pressable>
   );
 }
@@ -53,6 +62,11 @@ const styles = StyleSheet.create({
   },
   wide: {
     width: '100%',
+    minHeight: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.sm,
   },
   pressed: {
     opacity: 0.85,
@@ -66,9 +80,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing.sm,
   },
+  iconWrapWide: {
+    marginBottom: 0,
+  },
   title: {
     color: colors.textPrimary,
     fontSize: 14,
     fontWeight: '700',
+  },
+  titleWide: {
+    flex: 1,
+    fontSize: 16,
+  },
+  chevron: {
+    marginLeft: 'auto',
   },
 });

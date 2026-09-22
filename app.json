@@ -7,12 +7,6 @@
     "icon": "./assets/icon.png",
     "scheme": "gerasheriff",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0A0A0F"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gerasheriff.app",
@@ -46,7 +40,20 @@
         {
           "locationWhenInUsePermission": "Allow Gera Sheriff to use your location to find nearby emergency services."
         }
-      ]
+      ],
+      "expo-status-bar",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "backgroundColor": "#0A0A0F",
+          "resizeMode": "contain",
+          "imageWidth": 200
+        }
+      ],
+      "expo-audio",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

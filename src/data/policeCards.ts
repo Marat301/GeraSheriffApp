@@ -30,8 +30,9 @@ export const policeCards: PoliceCard[] = [
     id: 'pc4',
     titleEn: "I don't understand English",
     titleRu: 'Я не понимаю английский',
-    phraseEn: "I don't understand English. Please provide a Russian interpreter.",
-    phraseRu: 'Я не понимаю английский. Пожалуйста, предоставьте русского переводчика.',
+    // Base copy; detail screen localizes interpreter language from preferredLanguage
+    phraseEn: "I don't understand English. Please provide an interpreter.",
+    phraseRu: 'Я не понимаю английский. Пожалуйста, предоставьте переводчика.',
     color: colors.danger,
   },
   {

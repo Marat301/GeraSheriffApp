@@ -1,4 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '../src/components/AppText';
@@ -12,8 +13,16 @@ import { emergencyGuides } from '../src/data/emergency';
 import { glossaryTerms } from '../src/data/glossary';
 import { lawLibraryArticles, lawLibraryCategories } from '../src/data/lawLibrary';
 import { playlists } from '../src/data/playlists';
-import { videos } from '../src/data/videos';
+import { CATALOGUE_PLACEHOLDER_ID, resolveVideoOpenUrl, videos } from '../src/data/videos';
 import { colors, radius, spacing } from '../src/theme/colors';
+
+type SearchHit = {
+  id: string;
+  title: string;
+  type: string;
+  href?: string;
+  openUrl?: string;
+};
 
 export default function SearchScreen() {
   const { language, t } = useLanguage();
@@ -22,9 +31,9 @@ export default function SearchScreen() {
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return [];
+    if (!q) return [] as SearchHit[];
 
-    const items: { id: string; title: string; type: string; href: string }[] = [];
+    const items: SearchHit[] = [];
 
     playlists.forEach((p) => {
       const title = language === 'ru' ? p.titleRu : p.titleEn;
@@ -39,13 +48,15 @@ export default function SearchScreen() {
     });
 
     videos.forEach((v) => {
+      // Skip placeholder catalogue rows — they all open the channel, not a real video
+      if (v.youtubeId === CATALOGUE_PLACEHOLDER_ID) return;
       const title = language === 'ru' ? v.titleRu : v.titleEn;
       if (title.toLowerCase().includes(q)) {
         items.push({
           id: `video-${v.id}`,
           title,
           type: t('videos'),
-          href: `/videos/${v.category}`,
+          openUrl: resolveVideoOpenUrl(v.youtubeId),
         });
       }
     });
@@ -82,7 +93,7 @@ export default function SearchScreen() {
           id: `gloss-${term.id}`,
           title,
           type: t('glossary'),
-          href: '/glossary',
+          href: `/glossary?term=${encodeURIComponent(term.id)}`,
         });
       }
     });
@@ -115,8 +126,9 @@ export default function SearchScreen() {
 
     criminalStatutes.forEach((s) => {
       const title = language === 'ru' ? s.titleRu : s.titleEn;
-      const hay = `${s.code} ${title} ${s.explanationEn} ${s.explanationRu}`.toLowerCase();
-      if (hay.includes(q) || s.code.startsWith(q)) {
+      const hay =
+        `${s.code} ${title} ${s.explanationEn} ${s.explanationRu} ${s.penaltiesEn} ${s.penaltiesRu}`.toLowerCase();
+      if (hay.includes(q) || s.code.toLowerCase().startsWith(q)) {
         items.push({
           id: `statute-${s.code}`,
           title: `${s.code} — ${title}`,
@@ -146,13 +158,23 @@ export default function SearchScreen() {
           id: `roadmap-${step.id}`,
           title,
           type: t('caseRoadmap'),
-          href: `/glossary?term=${step.glossaryId}`,
+          href: `/glossary?term=${encodeURIComponent(step.glossaryId)}`,
         });
       }
     });
 
     return items;
   }, [query, language, t]);
+
+  const onPressHit = async (item: SearchHit) => {
+    if (item.openUrl) {
+      await WebBrowser.openBrowserAsync(item.openUrl);
+      return;
+    }
+    if (item.href) {
+      router.push(item.href as never);
+    }
+  };
 
   return (
     <Screen>
@@ -168,7 +190,7 @@ export default function SearchScreen() {
       {results.map((item) => (
         <Pressable
           key={item.id}
-          onPress={() => router.push(item.href as never)}
+          onPress={() => void onPressHit(item)}
           style={styles.row}
         >
           <View style={{ flex: 1 }}>

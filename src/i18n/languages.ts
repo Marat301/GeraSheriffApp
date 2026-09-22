@@ -6,7 +6,7 @@ export const LANGUAGE_TOGGLE_CODE: Record<PreferredLanguage, string> = {
   ru: 'RU',
   es: 'SP',
   pt: 'PT',
-  ht: 'FC',
+  ht: 'HT',
 };
 
 export const PREFERRED_LANGUAGE_LABEL_KEY: Record<

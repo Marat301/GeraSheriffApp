@@ -1,17 +1,18 @@
-# Gera Sheriff App (v1.0)
+# Gera Sheriff App
 
-Mobile app for Russian immigrants in Florida — Expo (React Native) for iOS and Android.
+Offline-first Expo (React Native) app for immigrants in Florida — guides, glossary, law library, police cards, and YouTube resources.
 
 ## Features
 
-- Home dashboard with Gera Sheriff branding, RU/EN toggle, search, categories, Emergency button, featured YouTube video, and “coming soon” modules
-- User accounts: sign up, login, forgot password, profile, language & state preferences (Florida first; CA/NY next)
-- YouTube library by category (Police, Law, Immigration, Traffic, Firearms, Self-defense, News)
-- Digital library (Amazon / Apple Books links)
-- Articles
-- Static emergency quick guides
-- Police communication cards (EN + RU + text-to-speech)
-- Florida legal glossary
+- Home dashboard with branding, language toggle, search, categories, Emergency button, featured YouTube video
+- Language preference only (RU / ES / PT / Haitian Creole paired with English) — stored on device
+- YouTube library and playlists (needs network)
+- Digital library (book store links)
+- Articles, emergency guides, police communication cards (TTS)
+- Florida legal glossary, law library, criminal case roadmap
+- Nearby important locations (needs network + location)
+
+No accounts or backend — subscriptions can use RevenueCat later.
 
 ## Run
 
@@ -20,7 +21,7 @@ npm install
 npx expo start
 ```
 
-Then open in Expo Go on your phone, or press `a` for Android emulator / `i` for iOS simulator (macOS).
+Open in Expo Go, or press `a` / `i` for emulators.
 
 ## Branding
 

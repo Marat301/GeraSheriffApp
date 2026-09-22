@@ -101,9 +101,10 @@ function elementToPlace(
   };
 }
 
-/** Digits (and leading +) for tel: links */
+/** Digits (and leading +) for tel: links — use the first number if several are listed */
 export function toTelUrl(phone: string): string {
-  const cleaned = phone.replace(/[^\d+]/g, '');
+  const first = phone.split(/[;/|]/)[0]?.trim() ?? phone;
+  const cleaned = first.replace(/[^\d+]/g, '');
   return `tel:${cleaned}`;
 }
 
