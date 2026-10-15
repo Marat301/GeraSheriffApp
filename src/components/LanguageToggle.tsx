@@ -5,8 +5,10 @@ import { LANGUAGE_TOGGLE_CODE } from '../i18n/languages';
 import { colors, radius, spacing } from '../theme/colors';
 
 export function LanguageToggle() {
-  const { language, preferredLanguage, setLanguage } = useLanguage();
+  const { language, preferredLanguage, setLanguage, showLanguageToggle } = useLanguage();
   const pairCode = LANGUAGE_TOGGLE_CODE[preferredLanguage];
+
+  if (!showLanguageToggle) return null;
 
   return (
     <View style={styles.wrap}>

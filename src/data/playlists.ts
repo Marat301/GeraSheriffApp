@@ -120,5 +120,17 @@ export function getPlaylist(id: string) {
 }
 
 export function youtubePlaylistUrl(playlistId: string) {
+  // YouTube does not expose a public URL param to force “newest first” for viewers.
   return `https://www.youtube.com/playlist?list=${playlistId}`;
+}
+
+/**
+ * Channel videos are authored in Russian. For non-English UI, show Russian playlist
+ * titles so they match the video titles users see on YouTube.
+ */
+export function playlistTitle(
+  playlist: PlaylistItem,
+  language: string
+): string {
+  return language === 'en' ? playlist.titleEn : playlist.titleRu;
 }

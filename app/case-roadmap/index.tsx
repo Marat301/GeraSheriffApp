@@ -12,7 +12,7 @@ import {
   CLERK_OF_COURTS_URL,
   MY_FL_COURT_ACCESS_URL,
 } from '../../src/data/caseRoadmap';
-import { glossaryTerms } from '../../src/data/glossary';
+import { glossaryDefinition, glossaryTerms } from '../../src/data/glossary';
 import { colors, radius, spacing } from '../../src/theme/colors';
 
 export default function CaseRoadmapScreen() {
@@ -86,11 +86,7 @@ export default function CaseRoadmapScreen() {
         {caseRoadmapSteps.map((step, index) => {
           const label = language === 'ru' ? step.labelRu : step.labelEn;
           const glossary = glossaryTerms.find((g) => g.id === step.glossaryId);
-          const definition = glossary
-            ? language === 'ru'
-              ? glossary.definitionRu
-              : glossary.definitionEn
-            : '';
+          const definition = glossary ? glossaryDefinition(glossary, language) : '';
           const isLast = index === caseRoadmapSteps.length - 1;
           return (
             <View key={step.id} style={styles.stepBlock}>

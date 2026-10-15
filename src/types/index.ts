@@ -24,7 +24,11 @@ export interface BookStoreLink {
   id: string;
   labelEn: string;
   labelRu: string;
-  url: string;
+  labelEs: string;
+  labelPt: string;
+  labelHt: string;
+  /** Omit when the store link is not ready yet */
+  url?: string;
 }
 
 export interface BookItem {
@@ -34,6 +38,10 @@ export interface BookItem {
   author: string;
   descriptionEn: string;
   descriptionRu: string;
+  /** Remote cover art (e.g. from gerasheriff.us) */
+  coverUrl: string;
+  categoryEn: string;
+  categoryRu: string;
   stores: BookStoreLink[];
 }
 
@@ -125,6 +133,12 @@ export interface GlossaryTerm {
   id: string;
   termEn: string;
   termRu: string;
+  termEs: string;
+  termPt: string;
+  termHt: string;
   definitionEn: string;
   definitionRu: string;
+  definitionEs: string;
+  definitionPt: string;
+  definitionHt: string;
 }

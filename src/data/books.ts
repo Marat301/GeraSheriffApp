@@ -1,79 +1,149 @@
-import { BookItem } from '../types';
+import { BookItem, Language } from '../types';
 
-const APPLE_BOOKS_RU =
-  'https://books.apple.com/us/book/%D1%8D%D0%BD%D1%86%D0%B8%D0%BA%D0%BB%D0%BE%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F-%D0%B4%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B5%D0%B3%D0%BE-%D0%BD%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D1%8F-%D0%B2-%D1%81%D1%88%D0%B0/id6793154864';
+const COVER = {
+  ice: 'https://gerasheriff.us/assets/book-ice.jpg',
+  police1: 'https://gerasheriff.us/assets/book-police-1.jpg',
+  police2: 'https://gerasheriff.us/assets/book-police-2.png',
+  weapons: 'https://gerasheriff.us/assets/book-weapons.jpg',
+  dv: 'https://gerasheriff.us/assets/book-dv.jpg',
+} as const;
 
-const APPLE_BOOKS_ES =
-  'https://books.apple.com/us/book/violencia-dom%C3%A9stica-en-estados-unidos/id6798546637';
+const amazon = (url: string): BookItem['stores'][number] => ({
+  id: 'amazon',
+  labelEn: 'Amazon',
+  labelRu: 'Amazon',
+  labelEs: 'Amazon',
+  labelPt: 'Amazon',
+  labelHt: 'Amazon',
+  url,
+});
 
-/** Print edition link promoted on the Gera Sheriff YouTube channel */
-const INGRAMSPARK_PRINT =
-  'https://shop.ingramspark.com/b/084?params=UJgSI3rKQqWk9RNzEx89YbPBz2Dy2AIEd75wsAeuu5f';
+const ingramSpark = (url?: string): BookItem['stores'][number] => ({
+  id: 'ingramspark',
+  labelEn: 'Buy from author via IngramSpark',
+  labelRu: 'Купить у автора через IngramSpark',
+  labelEs: 'Comprar al autor vía IngramSpark',
+  labelPt: 'Comprar do autor via IngramSpark',
+  labelHt: 'Achte nan men otè a atravè IngramSpark',
+  url,
+});
 
-const AMAZON_SEARCH =
-  'https://www.amazon.com/s?k=%D0%AD%D0%BD%D1%86%D0%B8%D0%BA%D0%BB%D0%BE%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F+%D0%B4%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B5%D0%B3%D0%BE+%D0%BD%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D1%8F+%D0%B2+%D0%A1%D0%A8%D0%90+German+Bickbau';
-
-const KINDLE_SEARCH =
-  'https://www.amazon.com/s?k=German+Bickbau+%D0%AD%D0%BD%D1%86%D0%B8%D0%BA%D0%BB%D0%BE%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F+%D0%B4%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B5%D0%B3%D0%BE+%D0%BD%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D1%8F&i=digital-text';
-
-const EVERAND_AUTHOR = 'https://www.everand.com/author/1006828660/German-Bickbau';
-
-const GOOGLE_PLAY_SEARCH =
-  'https://play.google.com/store/search?q=%D0%AD%D0%BD%D1%86%D0%B8%D0%BA%D0%BB%D0%BE%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F%20%D0%B4%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B5%D0%B3%D0%BE%20%D0%BD%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D1%8F%20%D0%B2%20%D0%A1%D0%A8%D0%90%20German%20Bickbau&c=books';
-
+/** Matches https://gerasheriff.us/#books — cover + Amazon / IngramSpark */
 export const books: BookItem[] = [
   {
-    id: 'domestic-violence-usa',
-    titleEn: 'Encyclopedia of Domestic Violence in the USA',
-    titleRu: 'Энциклопедия домашнего насилия в США',
+    id: 'ice-usa',
+    titleEn: 'ICE in the USA',
+    titleRu: 'ICE в США',
     author: 'German Bickbau (Gera Sheriff)',
-    descriptionEn:
-      'A plain-language guide to how police, prosecutors, and courts in the USA handle domestic violence — including protective orders, stalking, immigration, firearms, children, and common mistakes.',
-    descriptionRu:
-      'Простым языком о том, как в США работают полиция, прокуратура и суды по делам о домашнем насилии — запреты, преследование, иммиграция, оружие, дети и типичные ошибки.',
+    descriptionEn: 'Immigration control and dealing with ICE.',
+    descriptionRu: 'Иммиграционный контроль и взаимодействие с ICE.',
+    coverUrl: COVER.ice,
+    categoryEn: 'Immigration',
+    categoryRu: 'Иммиграция',
     stores: [
-      {
-        id: 'apple',
-        labelEn: 'Apple Books',
-        labelRu: 'Apple Books',
-        url: APPLE_BOOKS_RU,
-      },
-      {
-        id: 'apple-es',
-        labelEn: 'Apple Books (Spanish)',
-        labelRu: 'Apple Books (исп.)',
-        url: APPLE_BOOKS_ES,
-      },
-      {
-        id: 'print',
-        labelEn: 'Paperback (IngramSpark)',
-        labelRu: 'Бумага (IngramSpark)',
-        url: INGRAMSPARK_PRINT,
-      },
-      {
-        id: 'amazon',
-        labelEn: 'Amazon',
-        labelRu: 'Amazon',
-        url: AMAZON_SEARCH,
-      },
-      {
-        id: 'kindle',
-        labelEn: 'Kindle / Amazon eBook',
-        labelRu: 'Kindle / Amazon eBook',
-        url: KINDLE_SEARCH,
-      },
-      {
-        id: 'google-play',
-        labelEn: 'Google Play Books',
-        labelRu: 'Google Play Книги',
-        url: GOOGLE_PLAY_SEARCH,
-      },
-      {
-        id: 'everand',
-        labelEn: 'Everand / Scribd',
-        labelRu: 'Everand / Scribd',
-        url: EVERAND_AUTHOR,
-      },
+      amazon('https://www.amazon.com/s?i=stripbooks&k=German+Bickbau+ICE+%D0%92+%D0%A1%D0%A8%D0%90'),
+      ingramSpark(),
+    ],
+  },
+  {
+    id: 'police-usa-1',
+    titleEn: 'Police in the USA',
+    titleRu: 'Полиция в США',
+    author: 'German Bickbau (Gera Sheriff)',
+    descriptionEn: 'How an ordinary encounter can become a criminal case.',
+    descriptionRu: 'Как обычный контакт может стать уголовным делом.',
+    coverUrl: COVER.police1,
+    categoryEn: 'Police · Book One',
+    categoryRu: 'Полиция · Книга первая',
+    stores: [
+      amazon('https://www.amazon.com/s?i=stripbooks&k=9798234198464'),
+      ingramSpark(
+        'https://shop.ingramspark.com/b/084?params=bplxwhIjTKnEHLWtlw0gNziUYpiHPJw7v3chlfnDpnA'
+      ),
+    ],
+  },
+  {
+    id: 'police-usa-2',
+    titleEn: 'Police in the USA',
+    titleRu: 'Полиция в США',
+    author: 'German Bickbau (Gera Sheriff)',
+    descriptionEn: 'Continuation of the practical guide.',
+    descriptionRu: 'Продолжение практического руководства.',
+    coverUrl: COVER.police2,
+    categoryEn: 'Police · Book Two',
+    categoryRu: 'Полиция · Книга вторая',
+    stores: [
+      amazon(
+        'https://www.amazon.com/s?i=stripbooks&k=German+Bickbau+%D0%9F%D0%BE%D0%BB%D0%B8%D1%86%D0%B8%D1%8F+%D0%B2+%D0%A1%D0%A8%D0%90+%D0%9A%D0%BD%D0%B8%D0%B3%D0%B0+%D0%B2%D1%82%D0%BE%D1%80%D0%B0%D1%8F'
+      ),
+      ingramSpark(
+        'https://shop.ingramspark.com/b/084?params=MI3ndeY0aiv72YiTABxDurgNXFdf9NXfjq4QZGUXva2'
+      ),
+    ],
+  },
+  {
+    id: 'weapons-usa',
+    titleEn: 'Firearms in the USA',
+    titleRu: 'Оружие в США',
+    author: 'German Bickbau (Gera Sheriff)',
+    descriptionEn: 'Owner responsibility and safety.',
+    descriptionRu: 'Ответственность владельца и вопросы безопасности.',
+    coverUrl: COVER.weapons,
+    categoryEn: 'Firearms · Book Three',
+    categoryRu: 'Оружие · Книга третья',
+    stores: [
+      amazon('https://www.amazon.com/s?i=stripbooks&k=9798234227812'),
+      ingramSpark(),
+    ],
+  },
+  {
+    id: 'domestic-violence-usa',
+    titleEn: 'Domestic Violence in the USA',
+    titleRu: 'Домашнее насилие в США',
+    author: 'German Bickbau (Gera Sheriff)',
+    descriptionEn: 'An encyclopedia for understanding the issue and its consequences.',
+    descriptionRu: 'Энциклопедия для понимания проблемы и её последствий.',
+    coverUrl: COVER.dv,
+    categoryEn: 'Domestic Violence · First book in series',
+    categoryRu: 'Домашнее насилие · Первая книга серии',
+    stores: [
+      amazon('https://www.amazon.com/s?i=stripbooks&k=9798234153555'),
+      ingramSpark(
+        'https://shop.ingramspark.com/b/084?params=UJgSI3rKQqWk9RNzEx89YbPBz2Dy2AIEd75wsAeuu5f'
+      ),
     ],
   },
 ];
+
+export function bookStoreLabel(
+  store: BookItem['stores'][number],
+  language: Language
+): string {
+  switch (language) {
+    case 'ru':
+      return store.labelRu;
+    case 'es':
+      return store.labelEs;
+    case 'pt':
+      return store.labelPt;
+    case 'ht':
+      return store.labelHt;
+    default:
+      return store.labelEn;
+  }
+}
+
+export function bookTitle(book: BookItem, language: Language): string {
+  if (language === 'ru') return book.titleRu;
+  return book.titleEn;
+}
+
+export function bookDescription(book: BookItem, language: Language): string {
+  if (language === 'ru') return book.descriptionRu;
+  return book.descriptionEn;
+}
+
+export function bookCategory(book: BookItem, language: Language): string {
+  if (language === 'ru') return book.categoryRu;
+  return book.categoryEn;
+}

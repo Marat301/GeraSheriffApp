@@ -10,7 +10,11 @@ import { articles } from '../src/data/articles';
 import { caseRoadmapSteps } from '../src/data/caseRoadmap';
 import { criminalStatutes } from '../src/data/criminalStatutes';
 import { emergencyGuides } from '../src/data/emergency';
-import { glossaryTerms } from '../src/data/glossary';
+import {
+  glossaryDefinition,
+  glossaryTermLabel,
+  glossaryTerms,
+} from '../src/data/glossary';
 import { lawLibraryArticles, lawLibraryCategories } from '../src/data/lawLibrary';
 import { playlists } from '../src/data/playlists';
 import { CATALOGUE_PLACEHOLDER_ID, resolveVideoOpenUrl, videos } from '../src/data/videos';
@@ -86,8 +90,8 @@ export default function SearchScreen() {
     });
 
     glossaryTerms.forEach((term) => {
-      const title = language === 'ru' ? term.termRu : term.termEn;
-      const def = language === 'ru' ? term.definitionRu : term.definitionEn;
+      const title = glossaryTermLabel(term, language);
+      const def = glossaryDefinition(term, language);
       if (title.toLowerCase().includes(q) || def.toLowerCase().includes(q)) {
         items.push({
           id: `gloss-${term.id}`,

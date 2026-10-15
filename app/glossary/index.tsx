@@ -6,7 +6,12 @@ import { Screen } from '../../src/components/Screen';
 import { SearchBar } from '../../src/components/SearchBar';
 import { StackBackButton } from '../../src/components/StackBackButton';
 import { useLanguage } from '../../src/context/LanguageContext';
-import { glossaryTerms } from '../../src/data/glossary';
+import {
+  glossaryDefinition,
+  glossarySearchText,
+  glossaryTermLabel,
+  glossaryTerms,
+} from '../../src/data/glossary';
 import { colors, radius, spacing } from '../../src/theme/colors';
 
 export default function GlossaryScreen() {
@@ -21,18 +26,14 @@ export default function GlossaryScreen() {
     const match = glossaryTerms.find((item) => item.id === focusedId);
     if (!match) return;
     setHighlightId(focusedId);
-    setQuery(language === 'ru' ? match.termRu : match.termEn);
+    setQuery(glossaryTermLabel(match, language));
   }, [focusedId, language]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return glossaryTerms;
-    return glossaryTerms.filter((term) => {
-      const en = `${term.termEn} ${term.definitionEn}`.toLowerCase();
-      const ru = `${term.termRu} ${term.definitionRu}`.toLowerCase();
-      return en.includes(q) || ru.includes(q) || term.id.includes(q);
-    });
-  }, [query]);
+    return glossaryTerms.filter((term) => glossarySearchText(term, language).includes(q));
+  }, [query, language]);
 
   return (
     <Screen>
@@ -60,18 +61,12 @@ export default function GlossaryScreen() {
         <AppText muted>{t('emptySearch')}</AppText>
       ) : (
         filtered.map((term) => {
-          const name = language === 'ru' ? term.termRu : term.termEn;
-          const alt = language === 'ru' ? term.termEn : language === 'en' ? term.termRu : null;
-          const definition = language === 'ru' ? term.definitionRu : term.definitionEn;
+          const name = glossaryTermLabel(term, language);
+          const definition = glossaryDefinition(term, language);
           const highlighted = highlightId === term.id;
           return (
             <View key={term.id} style={[styles.card, highlighted && styles.cardHighlight]}>
               <AppText variant="subtitle">{name}</AppText>
-              {alt ? (
-                <AppText variant="caption" color={colors.blueBright} style={{ marginTop: 2 }}>
-                  {alt}
-                </AppText>
-              ) : null}
               <AppText muted style={{ marginTop: spacing.sm }}>
                 {definition}
               </AppText>

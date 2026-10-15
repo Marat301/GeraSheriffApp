@@ -54,6 +54,14 @@ function RootNavigator() {
           options={{ title: t('caseRoadmap'), ...backHeader }}
         />
         <Stack.Screen
+          name="official-links/index"
+          options={{ title: t('officialLinks'), ...backHeader }}
+        />
+        <Stack.Screen
+          name="consultations/index"
+          options={{ title: t('consultations'), ...backHeader }}
+        />
+        <Stack.Screen
           name="law-library/index"
           options={{ title: t('lawLibrary'), ...backHeader }}
         />

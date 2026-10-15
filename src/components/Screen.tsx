@@ -3,6 +3,7 @@ import { useSegments } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLanguage } from '../context/LanguageContext';
 import { colors, spacing } from '../theme/colors';
 import { LanguageToggle } from './LanguageToggle';
 import { TutorialModal } from './TutorialModal';
@@ -25,7 +26,9 @@ export function Screen({
   showTutorial = false,
 }: Props) {
   const segments = useSegments();
+  const { showLanguageToggle: bilingualToggle } = useLanguage();
   const [tutorialOpen, setTutorialOpen] = useState(false);
+  const showToggle = showLanguageToggle && bilingualToggle;
 
   // Stack screens already have a nav header — skip top safe-area to avoid empty black bar
   const inTabs = segments[0] === '(tabs)';
@@ -35,7 +38,7 @@ export function Screen({
     : (['left', 'right'] as const);
 
   const floatTop = applyTopInset ? spacing.sm : spacing.sm;
-  const contentTopPad = showLanguageToggle || showTutorial ? 52 : spacing.sm;
+  const contentTopPad = showToggle || showTutorial ? 52 : spacing.sm;
 
   const floating = (
     <View
@@ -52,7 +55,7 @@ export function Screen({
           <Ionicons name="help" size={20} color={colors.white} />
         </Pressable>
       ) : null}
-      {showLanguageToggle ? <LanguageToggle /> : null}
+      {showToggle ? <LanguageToggle /> : null}
     </View>
   );
 

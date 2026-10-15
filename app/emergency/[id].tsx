@@ -14,22 +14,44 @@ import { colors, radius, spacing } from '../../src/theme/colors';
 import { PreferredLanguage } from '../../src/types';
 import { stopSpeaking } from '../../src/utils/speak';
 
-/** Police-stop guide: step 4 (index 3) and step 6 (index 5) get TTS + cards link */
-function policeStopSpeak(
-  preferredLanguage: PreferredLanguage
-): Record<number, { phraseEn: string }> {
+type SpeakMap = Record<number, { phraseEn: string }>;
+
+/** Police stop: steps 4 (silent), 5 (no search), 6 (interpreter) */
+function policeStopSpeak(preferredLanguage: PreferredLanguage): SpeakMap {
   return {
-    3: {
-      phraseEn: policeCards.find((c) => c.id === 'pc2')!.phraseEn,
-    },
-    5: {
-      phraseEn: interpreterPhraseEn(preferredLanguage),
-    },
+    3: { phraseEn: policeCards.find((c) => c.id === 'pc2')!.phraseEn },
+    4: { phraseEn: policeCards.find((c) => c.id === 'pc3')!.phraseEn },
+    5: { phraseEn: interpreterPhraseEn(preferredLanguage) },
   };
 }
 
-function mentions911(text: string) {
-  return /\b911\b/.test(text);
+/** Detention: steps 3 (lawyer), 5 (no search), 6 (interpreter) */
+function policeDetentionSpeak(preferredLanguage: PreferredLanguage): SpeakMap {
+  return {
+    2: { phraseEn: policeCards.find((c) => c.id === 'pc1')!.phraseEn },
+    4: { phraseEn: policeCards.find((c) => c.id === 'pc3')!.phraseEn },
+    5: { phraseEn: interpreterPhraseEn(preferredLanguage) },
+  };
+}
+
+function speakMapForGuide(
+  guideId: string,
+  preferredLanguage: PreferredLanguage
+): SpeakMap {
+  if (guideId === 'eg1') return policeStopSpeak(preferredLanguage);
+  if (guideId === 'eg11') return policeDetentionSpeak(preferredLanguage);
+  return {};
+}
+
+/** Step index → dialable number shown under that step */
+type StepCallMap = Record<number, { label: string; tel: string }>;
+
+function stepCallMapForGuide(guideId: string): StepCallMap {
+  // Missing Child — step 7: NCMEC 1-800-THE-LOST
+  if (guideId === 'eg5') {
+    return { 6: { label: 'Call 1-800-THE-LOST', tel: '18008435678' } };
+  }
+  return {};
 }
 
 export default function EmergencyGuideScreen() {
@@ -38,7 +60,8 @@ export default function EmergencyGuideScreen() {
   const { language, preferredLanguage, t } = useLanguage();
   const router = useRouter();
   const guide = emergencyGuides.find((g) => g.id === id);
-  const policeSpeak = policeStopSpeak(preferredLanguage);
+  const speakByStep = guide ? speakMapForGuide(guide.id, preferredLanguage) : {};
+  const callByStep = guide ? stepCallMapForGuide(guide.id) : {};
 
   useEffect(() => {
     return () => {
@@ -58,7 +81,6 @@ export default function EmergencyGuideScreen() {
   const steps = (language === 'ru' ? guide.stepsRu : guide.stepsEn).map((step) =>
     localizeInterpreterMentions(step, preferredLanguage)
   );
-  const isPoliceStop = guide.id === 'eg1';
 
   return (
     <Screen>
@@ -83,8 +105,8 @@ export default function EmergencyGuideScreen() {
         {t('steps')}
       </AppText>
       {steps.map((step, index) => {
-        const speak = isPoliceStop ? policeSpeak[index] : undefined;
-        const show911 = mentions911(step);
+        const speak = speakByStep[index];
+        const call = callByStep[index];
         return (
           <View key={index} style={styles.step}>
             <View style={styles.num}>
@@ -94,13 +116,15 @@ export default function EmergencyGuideScreen() {
             </View>
             <View style={styles.stepBody}>
               <AppText style={{ flex: 1 }}>{step}</AppText>
-              {show911 ? (
+              {call ? (
                 <Pressable
-                  onPress={() => Linking.openURL('tel:911')}
-                  style={({ pressed }) => [styles.call911Chip, pressed && { opacity: 0.9 }]}
+                  onPress={() => Linking.openURL(`tel:${call.tel}`)}
+                  style={({ pressed }) => [styles.callChip, pressed && { opacity: 0.9 }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={call.label}
                 >
-                  <AppText variant="caption" color={colors.white} style={styles.call911Text}>
-                    {t('call911')}
+                  <AppText variant="caption" color={colors.white} style={styles.callChipText}>
+                    {call.label}
                   </AppText>
                 </Pressable>
               ) : null}
@@ -149,14 +173,14 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.sm,
   },
-  call911Chip: {
+  callChip: {
     alignSelf: 'flex-start',
     backgroundColor: colors.danger,
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingVertical: 8,
   },
-  call911Text: {
+  callChipText: {
     fontWeight: '800',
   },
   actions: {

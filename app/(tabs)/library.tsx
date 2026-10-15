@@ -1,15 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
-import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '../../src/components/AppText';
 import { Screen } from '../../src/components/Screen';
 import { VideoCard } from '../../src/components/VideoCard';
 import { useLanguage } from '../../src/context/LanguageContext';
-import { playlists, youtubePlaylistUrl } from '../../src/data/playlists';
-import { books } from '../../src/data/books';
+import {
+  bookCategory,
+  bookDescription,
+  books,
+  bookStoreLabel,
+  bookTitle,
+} from '../../src/data/books';
+import {
+  playlistTitle,
+  playlists,
+  youtubePlaylistUrl,
+} from '../../src/data/playlists';
 import { CHANNEL_URL, FEATURED_VIDEO_ID } from '../../src/data/videos';
 import {
   fetchAllChannelVideos,
@@ -25,7 +34,6 @@ const CHANNEL_VIDEOS_URL = 'https://www.youtube.com/@GeraSheriff/videos';
 
 export default function LibraryScreen() {
   const { language, t } = useLanguage();
-  const router = useRouter();
   const [section, setSection] = useState<Section>('videos');
   const [videoTab, setVideoTab] = useState<VideoTab>('playlists');
   const [featured, setFeatured] = useState<FeedVideo | null>(null);
@@ -171,22 +179,18 @@ export default function LibraryScreen() {
 
           {videoTab === 'playlists' ? (
             playlists.map((playlist) => {
-              const title = language === 'ru' ? playlist.titleRu : playlist.titleEn;
+              const title = playlistTitle(playlist, language);
               return (
                 <Pressable
                   key={playlist.id}
                   onPress={() =>
-                    router.push({
-                      pathname: '/playlists/[id]',
-                      params: { id: playlist.id },
-                    })
-                  }
-                  onLongPress={() =>
-                    WebBrowser.openBrowserAsync(
+                    void WebBrowser.openBrowserAsync(
                       youtubePlaylistUrl(playlist.youtubePlaylistId)
                     )
                   }
                   style={({ pressed }) => [styles.playlistCard, pressed && { opacity: 0.88 }]}
+                  accessibilityRole="link"
+                  accessibilityLabel={`${title}. ${t('openYouTube')}`}
                 >
                   <View style={styles.emojiWrap}>
                     <AppText style={styles.emoji}>{playlist.emoji}</AppText>
@@ -196,10 +200,10 @@ export default function LibraryScreen() {
                       {title}
                     </AppText>
                     <AppText variant="caption" color={colors.blueBright}>
-                      {t('openPlaylist')}
+                      {t('openYouTube')}
                     </AppText>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color={colors.blueBright} />
+                  <Ionicons name="logo-youtube" size={20} color={colors.danger} />
                 </Pressable>
               );
             })
@@ -244,42 +248,74 @@ export default function LibraryScreen() {
       ) : (
         <>
           {books.map((book) => {
-            const title = language === 'ru' ? book.titleRu : book.titleEn;
-            const description =
-              language === 'ru' ? book.descriptionRu : book.descriptionEn;
+            const title = bookTitle(book, language);
+            const description = bookDescription(book, language);
+            const category = bookCategory(book, language);
             return (
               <View key={book.id} style={styles.bookCard}>
-                <AppText variant="label" color={colors.blueBright}>
-                  Gera Sheriff
+                <View style={styles.coverWrap}>
+                  <Image
+                    source={{ uri: book.coverUrl }}
+                    style={styles.cover}
+                    resizeMode="cover"
+                    accessibilityLabel={title}
+                  />
+                </View>
+                <AppText variant="caption" color={colors.textMuted} style={styles.bookCategory}>
+                  {category.toUpperCase()}
                 </AppText>
                 <AppText variant="title" style={{ marginTop: spacing.xs }}>
                   {title}
                 </AppText>
                 <AppText muted style={{ marginTop: spacing.xs }}>
-                  {book.author}
-                </AppText>
-                <AppText muted style={{ marginTop: spacing.sm }}>
                   {description}
                 </AppText>
-                <AppText variant="label" style={{ marginTop: spacing.md, marginBottom: spacing.sm }}>
-                  {t('buyBook')}
-                </AppText>
-                {book.stores.map((store) => (
-                  <Pressable
-                    key={store.id}
-                    onPress={() => WebBrowser.openBrowserAsync(store.url)}
-                    style={({ pressed }) => [
-                      styles.storeBtn,
-                      pressed && { opacity: 0.85 },
-                    ]}
-                  >
-                    <Ionicons name="book-outline" size={18} color={colors.blueBright} />
-                    <AppText style={{ flex: 1, marginLeft: spacing.sm }}>
-                      {language === 'ru' ? store.labelRu : store.labelEn}
-                    </AppText>
-                    <Ionicons name="open-outline" size={18} color={colors.blueBright} />
-                  </Pressable>
-                ))}
+                <View style={styles.storeList}>
+                  {book.stores.map((store) => {
+                    const ready = Boolean(store.url);
+                    const isAmazon = store.id === 'amazon';
+                    return (
+                      <Pressable
+                        key={store.id}
+                        disabled={!ready}
+                        onPress={() => {
+                          if (store.url) void WebBrowser.openBrowserAsync(store.url);
+                        }}
+                        style={({ pressed }) => [
+                          styles.storeBtn,
+                          isAmazon ? styles.storeBtnPrimary : styles.storeBtnSecondary,
+                          !ready && styles.storeBtnDisabled,
+                          pressed && ready && { opacity: 0.88 },
+                        ]}
+                      >
+                        <View style={styles.storeBtnText}>
+                          <AppText
+                            style={{ flex: 1 }}
+                            color={isAmazon ? colors.white : colors.textPrimary}
+                          >
+                            {bookStoreLabel(store, language)}
+                          </AppText>
+                          {!ready ? (
+                            <AppText variant="caption" color={colors.textMuted}>
+                              {t('comingSoon')}
+                            </AppText>
+                          ) : null}
+                        </View>
+                        <Ionicons
+                          name="open-outline"
+                          size={18}
+                          color={
+                            !ready
+                              ? colors.textMuted
+                              : isAmazon
+                                ? colors.white
+                                : colors.blueBright
+                          }
+                        />
+                      </Pressable>
+                    );
+                  })}
+                </View>
               </View>
             );
           })}
@@ -383,14 +419,49 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.md,
   },
+  coverWrap: {
+    alignSelf: 'center',
+    width: 160,
+    height: 220,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    backgroundColor: colors.blackSoft,
+    marginBottom: spacing.md,
+  },
+  cover: {
+    width: '100%',
+    height: '100%',
+  },
+  bookCategory: {
+    letterSpacing: 0.6,
+    fontWeight: '700',
+  },
+  storeList: {
+    marginTop: spacing.md,
+    gap: spacing.sm,
+  },
   storeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.blackSoft,
+    gap: spacing.sm,
     borderRadius: radius.md,
     borderWidth: 1,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+  },
+  storeBtnPrimary: {
+    backgroundColor: colors.blackSoft,
     borderColor: colors.border,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+  },
+  storeBtnSecondary: {
+    backgroundColor: colors.surfaceElevated,
+    borderColor: colors.border,
+  },
+  storeBtnDisabled: {
+    opacity: 0.55,
+  },
+  storeBtnText: {
+    flex: 1,
+    gap: 2,
   },
 });

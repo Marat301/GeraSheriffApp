@@ -1,47 +1,15 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import React from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 import { AppText } from '../../src/components/AppText';
 import { CategoryButton } from '../../src/components/CategoryButton';
 import { Screen } from '../../src/components/Screen';
 import { useLanguage } from '../../src/context/LanguageContext';
-import { CHANNEL_URL, FEATURED_VIDEO_ID, youtubeWatchUrl } from '../../src/data/videos';
-import { fetchLatestVideo } from '../../src/services/youtubeFeed';
-import { colors, radius, spacing } from '../../src/theme/colors';
+import { colors, spacing } from '../../src/theme/colors';
 
 export default function HomeScreen() {
   const { t } = useLanguage();
   const router = useRouter();
-  const [featuredId, setFeaturedId] = useState(FEATURED_VIDEO_ID);
-  const [featuredTitle, setFeaturedTitle] = useState('');
-  const [loadingFeatured, setLoadingFeatured] = useState(true);
-  const thumb = `https://img.youtube.com/vi/${featuredId}/hqdefault.jpg`;
-
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      (async () => {
-        try {
-          const latest = await fetchLatestVideo();
-          if (!cancelled && latest) {
-            setFeaturedId(latest.youtubeId);
-            setFeaturedTitle(latest.title);
-          }
-        } catch {
-          // keep current / fallback id
-        } finally {
-          if (!cancelled) setLoadingFeatured(false);
-        }
-      })();
-      return () => {
-        cancelled = true;
-      };
-    }, [])
-  );
 
   return (
     <Screen showTutorial>
@@ -101,6 +69,21 @@ export default function HomeScreen() {
       </AppText>
       <View style={styles.grid}>
         <CategoryButton
+          title={t('youtubeLibrary')}
+          icon="logo-youtube"
+          onPress={() => router.push('/(tabs)/library')}
+        />
+        <CategoryButton
+          title={t('consultations')}
+          icon="mail"
+          onPress={() => router.push('/consultations' as never)}
+        />
+        <CategoryButton
+          title={t('officialLinks')}
+          icon="link"
+          onPress={() => router.push('/official-links' as never)}
+        />
+        <CategoryButton
           title={t('caseRoadmap')}
           icon="git-commit"
           onPress={() => router.push('/case-roadmap' as never)}
@@ -121,41 +104,6 @@ export default function HomeScreen() {
           onPress={() => router.push('/articles')}
         />
       </View>
-
-      <AppText variant="label" style={styles.sectionLabel}>
-        {t('featuredVideo')}
-      </AppText>
-      <Pressable
-        onPress={() => WebBrowser.openBrowserAsync(youtubeWatchUrl(featuredId))}
-        style={styles.featured}
-      >
-        <Image source={{ uri: thumb }} style={styles.featuredImage} />
-        <LinearGradient colors={['transparent', colors.black]} style={styles.featuredOverlay}>
-          {loadingFeatured ? (
-            <ActivityIndicator color={colors.white} style={{ marginBottom: spacing.sm }} />
-          ) : (
-            <View style={styles.playBadge}>
-              <Ionicons name="play" size={18} color={colors.white} />
-            </View>
-          )}
-          <AppText variant="subtitle" numberOfLines={2}>
-            {featuredTitle || t('channelLink')}
-          </AppText>
-          <AppText variant="caption" color={colors.blueBright}>
-            {t('newest')}
-          </AppText>
-        </LinearGradient>
-      </Pressable>
-      <Pressable
-        onPress={() => WebBrowser.openBrowserAsync(CHANNEL_URL)}
-        style={({ pressed }) => [styles.ytBtn, pressed && styles.ytBtnPressed]}
-        accessibilityRole="button"
-        accessibilityLabel={t('viewYouTubeChannel')}
-      >
-        <Ionicons name="logo-youtube" size={22} color="#FF0000" />
-        <AppText style={styles.ytBtnText}>{t('viewYouTubeChannel')}</AppText>
-        <Ionicons name="open-outline" size={16} color={colors.textMuted} />
-      </Pressable>
 
       <AppText variant="caption" style={styles.disclaimer}>
         {t('disclaimer')}
@@ -196,58 +144,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-  },
-  featured: {
-    height: 190,
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  featuredImage: {
-    width: '100%',
-    height: '100%',
-  },
-  featuredOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'flex-end',
-    padding: spacing.md,
-  },
-  playBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.blue,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.sm,
-  },
-  ytBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  ytBtnPressed: {
-    opacity: 0.88,
-  },
-  ytBtnText: {
-    flex: 1,
-    fontWeight: '700',
-    fontSize: 15,
-    color: colors.textPrimary,
   },
   disclaimer: {
     marginTop: spacing.lg,

@@ -3,6 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Keyboard,
   Pressable,
   StyleSheet,
@@ -16,6 +17,12 @@ import { useLanguage } from '../../src/context/LanguageContext';
 import { translateToEnglish } from '../../src/services/translate';
 import { colors, radius, spacing } from '../../src/theme/colors';
 import { speakPhrase, stopSpeaking } from '../../src/utils/speak';
+import {
+  getSpeechRecognitionModule,
+  isSpeechRecognitionNativeAvailable,
+  useSpeechRecognitionEventSafe,
+} from '../../src/utils/speechRecognition';
+import { speechLocaleForPreferred } from '../../src/utils/speechLocale';
 
 const DEBOUNCE_MS = 450;
 
@@ -26,13 +33,42 @@ export default function TranslatorScreen() {
   const [englishText, setEnglishText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [listening, setListening] = useState(false);
   const requestId = useRef(0);
+  const baseBeforeListen = useRef('');
 
   const canSpeak = Boolean(englishText.trim()) && !loading;
+  const micNative = isSpeechRecognitionNativeAvailable();
+
+  useSpeechRecognitionEventSafe('result', (event) => {
+    const transcript = event?.results?.[0]?.transcript?.trim();
+    if (!transcript) return;
+    const prefix = baseBeforeListen.current.trim();
+    setSourceText(prefix ? `${prefix} ${transcript}` : transcript);
+  });
+
+  useSpeechRecognitionEventSafe('end', () => {
+    setListening(false);
+  });
+
+  useSpeechRecognitionEventSafe('error', (event) => {
+    setListening(false);
+    if (event?.error === 'aborted') return;
+    if (event?.error === 'not-allowed') {
+      Alert.alert(t('translator'), t('translatorMicDenied'));
+      return;
+    }
+    if (event?.error === 'no-speech') return;
+  });
 
   useEffect(() => {
     return () => {
       void stopSpeaking();
+      try {
+        getSpeechRecognitionModule()?.abort();
+      } catch {
+        // ignore
+      }
     };
   }, []);
 
@@ -69,8 +105,18 @@ export default function TranslatorScreen() {
     return () => clearTimeout(timer);
   }, [sourceText, preferredLanguage, t]);
 
+  const stopListening = () => {
+    try {
+      getSpeechRecognitionModule()?.stop();
+    } catch {
+      // ignore
+    }
+    setListening(false);
+  };
+
   const onClear = () => {
     void stopSpeaking();
+    stopListening();
     Keyboard.dismiss();
     requestId.current += 1;
     setSourceText('');
@@ -79,16 +125,58 @@ export default function TranslatorScreen() {
     setLoading(false);
   };
 
+  const toggleDictate = async () => {
+    Keyboard.dismiss();
+    void stopSpeaking();
+
+    if (listening) {
+      stopListening();
+      return;
+    }
+
+    const mod = getSpeechRecognitionModule();
+    if (!mod) {
+      Alert.alert(t('translator'), t('translatorMicNeedsBuild'));
+      return;
+    }
+
+    if (!mod.isRecognitionAvailable()) {
+      Alert.alert(t('translator'), t('translatorMicUnavailable'));
+      return;
+    }
+
+    const result = await mod.requestPermissionsAsync();
+    if (!result.granted) {
+      Alert.alert(t('translator'), t('translatorMicDenied'));
+      return;
+    }
+
+    baseBeforeListen.current = sourceText;
+    setListening(true);
+    try {
+      mod.start({
+        lang: speechLocaleForPreferred(preferredLanguage),
+        interimResults: true,
+        continuous: false,
+        maxAlternatives: 1,
+      });
+    } catch {
+      setListening(false);
+      Alert.alert(t('translator'), t('translatorMicUnavailable'));
+    }
+  };
+
   const onSpeak = () => {
     if (!canSpeak) return;
+    stopListening();
     Keyboard.dismiss();
     void speakPhrase(englishText, { language: 'en-US' });
   };
 
   const openPoliceCards = () => {
     void stopSpeaking();
+    stopListening();
     Keyboard.dismiss();
-    // Replace so Cards ↔ Translator never stack into a back-loop
     router.replace('/police-cards' as never);
   };
 
@@ -116,12 +204,39 @@ export default function TranslatorScreen() {
         ) : null}
       </View>
 
-      <TranslatorSourceInput
-        value={sourceText}
-        onChangeText={setSourceText}
-        placeholder={t('translatorPlaceholder')}
-        style={{ marginBottom: spacing.lg }}
-      />
+      <View style={styles.inputWrap}>
+        <TranslatorSourceInput
+          value={sourceText}
+          onChangeText={setSourceText}
+          placeholder={t('translatorPlaceholder')}
+        />
+        <Pressable
+          onPress={() => void toggleDictate()}
+          style={({ pressed }) => [
+            styles.micBtn,
+            listening && styles.micBtnActive,
+            !micNative && styles.micBtnMuted,
+            pressed && { opacity: 0.88 },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={listening ? t('translatorListening') : t('translatorDictate')}
+        >
+          <Ionicons
+            name={listening ? 'stop-circle' : 'mic'}
+            size={22}
+            color={colors.white}
+          />
+        </Pressable>
+      </View>
+      {listening ? (
+        <AppText color={colors.blueBright} style={styles.listeningHint}>
+          {t('translatorListening')}
+        </AppText>
+      ) : (
+        <AppText muted style={styles.listeningHint}>
+          {micNative ? t('translatorKeyboardHint') : t('translatorMicNeedsBuild')}
+        </AppText>
+      )}
 
       {error ? (
         <AppText color={colors.danger} style={{ marginBottom: spacing.md }}>
@@ -202,6 +317,34 @@ const styles = StyleSheet.create({
   clearLink: {
     fontWeight: '600',
     fontSize: 14,
+  },
+  inputWrap: {
+    position: 'relative',
+    marginBottom: spacing.xs,
+  },
+  micBtn: {
+    position: 'absolute',
+    right: spacing.sm,
+    bottom: spacing.sm,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.blueBright,
+  },
+  micBtnActive: {
+    backgroundColor: colors.danger,
+    borderColor: colors.danger,
+  },
+  micBtnMuted: {
+    opacity: 0.55,
+  },
+  listeningHint: {
+    marginBottom: spacing.md,
+    fontSize: 13,
   },
   outputCard: {
     backgroundColor: colors.surface,

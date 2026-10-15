@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   FlatList,
@@ -17,20 +17,21 @@ import { AppText } from './AppText';
 
 type Slide = {
   icon: keyof typeof Ionicons.glyphMap;
+  /** Use the same label keys as the real screens / home tiles */
   titleKey: TranslationKey;
   bodyKey: TranslationKey;
 };
 
 const SLIDES: Slide[] = [
-  { icon: 'home', titleKey: 'tutorialHomeTitle', bodyKey: 'tutorialHomeBody' },
-  { icon: 'library', titleKey: 'tutorialLibraryTitle', bodyKey: 'tutorialLibraryBody' },
-  { icon: 'warning', titleKey: 'tutorialEmergencyTitle', bodyKey: 'tutorialEmergencyBody' },
-  { icon: 'chatbubbles', titleKey: 'tutorialPoliceTitle', bodyKey: 'tutorialPoliceBody' },
-  { icon: 'newspaper', titleKey: 'tutorialArticlesTitle', bodyKey: 'tutorialArticlesBody' },
-  { icon: 'book', titleKey: 'tutorialGlossaryTitle', bodyKey: 'tutorialGlossaryBody' },
-  { icon: 'scale', titleKey: 'tutorialLawLibraryTitle', bodyKey: 'tutorialLawLibraryBody' },
-  { icon: 'git-commit', titleKey: 'tutorialCaseRoadmapTitle', bodyKey: 'tutorialCaseRoadmapBody' },
-  { icon: 'settings-outline', titleKey: 'tutorialProfileTitle', bodyKey: 'tutorialProfileBody' },
+  { icon: 'home', titleKey: 'home', bodyKey: 'tutorialHomeBody' },
+  { icon: 'library', titleKey: 'catalogue', bodyKey: 'tutorialLibraryBody' },
+  { icon: 'warning', titleKey: 'emergency', bodyKey: 'tutorialEmergencyBody' },
+  { icon: 'chatbubbles', titleKey: 'policeCards', bodyKey: 'tutorialPoliceBody' },
+  { icon: 'newspaper', titleKey: 'articles', bodyKey: 'tutorialArticlesBody' },
+  { icon: 'book', titleKey: 'glossary', bodyKey: 'tutorialGlossaryBody' },
+  { icon: 'scale', titleKey: 'lawLibrary', bodyKey: 'tutorialLawLibraryBody' },
+  { icon: 'git-commit', titleKey: 'caseRoadmap', bodyKey: 'tutorialCaseRoadmapBody' },
+  { icon: 'settings-outline', titleKey: 'profile', bodyKey: 'tutorialProfileBody' },
 ];
 
 type Props = {
@@ -42,7 +43,10 @@ export function TutorialModal({ visible, onClose }: Props) {
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const [index, setIndex] = useState(0);
-  const [pageWidth, setPageWidth] = useState(Dimensions.get('window').width - 48);
+  const [pageWidth, setPageWidth] = useState(
+    Math.max(0, Dimensions.get('window').width - spacing.md * 2)
+  );
+  const listRef = useRef<FlatList<Slide>>(null);
 
   const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (viewableItems[0]?.index != null) setIndex(viewableItems[0].index);
@@ -50,45 +54,68 @@ export function TutorialModal({ visible, onClose }: Props) {
 
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 60 }).current;
 
+  useEffect(() => {
+    if (!visible) return;
+    setIndex(0);
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToOffset({ offset: 0, animated: false });
+    });
+  }, [visible]);
+
+  const lastIndex = SLIDES.length - 1;
+  const swipeHint =
+    index <= 0
+      ? t('tutorialSwipeNext')
+      : index >= lastIndex
+        ? t('tutorialSwipeBack')
+        : t('tutorialSwipeBoth');
+
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={[styles.backdrop, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}>
-        <View
-          style={styles.sheet}
-          onLayout={(e) => {
-            const w = e.nativeEvent.layout.width;
-            if (w > 0) setPageWidth(w);
-          }}
-        >
+        <View style={styles.sheet}>
           <View style={styles.topBar}>
             <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={12}>
               <Ionicons name="close" size={22} color={colors.white} />
             </Pressable>
-            <AppText variant="label" color={colors.blueBright}>
+            <AppText variant="label" color={colors.blueBright} style={styles.topLabel}>
               {t('tutorial')}
             </AppText>
             <View style={{ width: 36 }} />
           </View>
 
           <FlatList
+            ref={listRef}
             data={SLIDES}
-            keyExtractor={(item) => item.titleKey}
+            keyExtractor={(item) => item.bodyKey}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onViewableItemsChanged={onViewableItemsChanged}
             viewabilityConfig={viewabilityConfig}
+            extraData={pageWidth}
+            onLayout={(e) => {
+              const w = Math.round(e.nativeEvent.layout.width);
+              if (w > 0 && w !== pageWidth) setPageWidth(w);
+            }}
+            getItemLayout={(_, i) => ({
+              length: pageWidth,
+              offset: pageWidth * i,
+              index: i,
+            })}
             renderItem={({ item }) => (
               <View style={[styles.page, { width: pageWidth }]}>
-                <View style={styles.iconCircle}>
-                  <Ionicons name={item.icon} size={32} color={colors.blueBright} />
+                <View style={styles.pageInner}>
+                  <View style={styles.iconCircle}>
+                    <Ionicons name={item.icon} size={32} color={colors.blueBright} />
+                  </View>
+                  <AppText variant="title" style={styles.pageTitle}>
+                    {t(item.titleKey)}
+                  </AppText>
+                  <AppText muted style={styles.pageBody}>
+                    {t(item.bodyKey)}
+                  </AppText>
                 </View>
-                <AppText variant="title" style={styles.pageTitle}>
-                  {t(item.titleKey)}
-                </AppText>
-                <AppText muted style={styles.pageBody}>
-                  {t(item.bodyKey)}
-                </AppText>
               </View>
             )}
           />
@@ -100,7 +127,7 @@ export function TutorialModal({ visible, onClose }: Props) {
           </View>
 
           <AppText variant="caption" style={styles.hint}>
-            {t('tutorialSwipe')}
+            {swipeHint}
           </AppText>
         </View>
       </View>
@@ -132,6 +159,10 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
   },
+  topLabel: {
+    textAlign: 'center',
+    flex: 1,
+  },
   closeBtn: {
     width: 36,
     height: 36,
@@ -143,10 +174,17 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   page: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 280,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
+  },
+  pageInner: {
+    width: '100%',
+    maxWidth: 320,
     alignItems: 'center',
-    minHeight: 260,
+    justifyContent: 'center',
   },
   iconCircle: {
     width: 72,
@@ -161,15 +199,18 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     textAlign: 'center',
+    width: '100%',
     marginBottom: spacing.md,
   },
   pageBody: {
     textAlign: 'center',
+    width: '100%',
     lineHeight: 22,
   },
   dots: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     gap: 6,
     marginTop: spacing.sm,
   },
@@ -185,6 +226,8 @@ const styles = StyleSheet.create({
   },
   hint: {
     textAlign: 'center',
+    width: '100%',
     marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
 });

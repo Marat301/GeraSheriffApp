@@ -1,4 +1,4 @@
-import { Language } from '../types';
+﻿import { Language } from '../types';
 
 const en = {
   appName: 'Gera Sheriff',
@@ -21,6 +21,8 @@ const en = {
   portuguese: 'Portuguese',
   frenchCreole: 'Haitian Creole',
   languagePairHint: 'The top bar switches between this language and English.',
+  languageEnglishOnlyHint:
+    'English only. The language switch at the top is hidden. Pick another language below to turn it back on.',
   languageOnboardingTitle: 'What is your native language?',
   languageOnboardingHint:
     'You can always change your language in Settings at the bottom right.',
@@ -57,10 +59,11 @@ const en = {
   youtubeLibrary: 'YouTube Library',
   policeCards: 'Police Communication Cards',
   translator: 'Translator',
-  translatorIntro: 'Type a phrase. English appears below — play it for the officer.',
+  translatorIntro:
+    'Type or dictate a phrase. English appears below. Play it for the officer.',
   translatorYourLanguage: 'Your language',
   translatorEnglish: 'English for the officer',
-  translatorPlaceholder: 'Type what you want to say…',
+  translatorPlaceholder: 'Type or dictate what you want to say…',
   translatorTranslate: 'Translate',
   translatorSpeakEnglish: 'Speak to officer',
   translatorClear: 'Clear',
@@ -69,23 +72,58 @@ const en = {
   translatorDisclaimer:
     'Machine translation can be imperfect. For important rights, prefer the Police Communication Cards.',
   translatorKeyboardHint:
-    'Tap 🌐 for your language keyboard. Use the keyboard mic to dictate (built into iPhone/Android).',
+    'Tap 🌐 for your language keyboard, or use the mic button to dictate.',
+  translatorDictate: 'Dictate',
+  translatorListening: 'Listening… tap to stop',
+  translatorMicDenied:
+    'Microphone or speech recognition permission is required to dictate.',
+  translatorMicUnavailable: 'Speech recognition is not available on this device.',
+  translatorMicNeedsBuild:
+    'Dictate needs a new app build (TestFlight). Until then, type your phrase or use the keyboard mic.',
   translatorDone: 'Done',
-  glossary: 'Florida Legal Glossary',
+  glossary: 'Legal Glossary',
   glossaryIntro:
-    'Searchable dictionary of important legal terms (English and Russian definitions). Educational only — not legal advice.',
+    'Searchable dictionary of important legal terms. Educational only. Not legal advice.',
   glossarySearchPlaceholder: 'Search: arraignment, bail, Miranda…',
   articlesSearchPlaceholder: 'Search articles…',
   glossaryTermsCount: 'terms',
   lawLibrary: 'Florida State Law Library',
   lawLibraryIntro:
-    'Short Florida-focused guides on criminal, traffic, firearms, self-defense, domestic violence, immigration, and court procedures. Educational only — not legal advice.',
+    'Short Florida-focused guides on criminal, traffic, firearms, self-defense, domestic violence, immigration, and court procedures. Educational only. Not legal advice.',
   lawLibrarySearchPlaceholder: 'Search within this topic…',
   caseRoadmap: 'Criminal Case Roadmap',
+  officialLinks: 'Official Lookups',
+  officialLinksIntro:
+    'Open official government websites to search custody status, immigration/court cases, or Florida licenses. Links leave the app.',
+  officialLinksFindPeople: 'Find people in custody',
+  officialLinksImmigration: 'Immigration case status',
+  officialLinksCourts: 'Courts & statutes',
+  officialLinksLicenses: 'Licenses & IDs',
+  consultations: 'Consultations',
+  consultationsEyebrow: 'Contact personally',
+  consultationsTitle: 'Your question',
+  consultationsIntro:
+    'Briefly describe the situation. The email will open in your email app — all you have to do is send it.',
+  consultationsTopic: 'Topic',
+  consultationsName: 'How should we address you?',
+  consultationsNamePlaceholder: 'Your name',
+  consultationsLocation: 'City / time zone',
+  consultationsLocationPlaceholder: 'For example, Miami',
+  consultationsMessage: 'What would you like to discuss?',
+  consultationsMessagePlaceholder: 'Basic circumstances and your question',
+  consultationsNote:
+    'The request is not sent automatically. A general description is sufficient until a consultation is agreed upon.',
+  consultationsOpenEmail: 'Open the letter to send',
+  consultationsOrWrite: 'Or write directly to:',
+  consultationsCopyDraft: 'Copy the application text',
+  consultationsCopied: 'Application text copied',
+  consultationsNameRequired: 'Please enter your name.',
+  consultationsMessageRequired: 'Please describe what you would like to discuss.',
+  consultationsMailFailed: 'Could not open email. Copy the text and send it manually.',
   caseRoadmapIntro:
-    'A simple visual path of a typical Florida criminal case, with a short plain-language note under each stage. Educational only — not legal advice.',
+    'A simple visual path of a typical Florida criminal case, with a short plain-language note under each stage. Educational only. Not legal advice.',
   caseRoadmapFlow: 'Case flow',
-  caseRoadmapTapHint: 'Tap a box to open that term in the Florida Legal Glossary.',
+  caseRoadmapTapHint: 'Tap a box to open that term in the Legal Glossary.',
   clerkOfCourts: 'Clerk of Courts',
   clerkOfCourtsNearby: 'Find nearby clerk of courts offices on the map',
   clerkOfCourtsWebsite: 'Florida Court Clerks website',
@@ -93,7 +131,7 @@ const en = {
   statuteLookup: 'Criminal statute lookup',
   statuteLookupHint: 'Number pad · e.g. 784.03',
   statuteLookupIntro:
-    'Type a Florida statute number (for example 784.03) for a plain-language overview. Educational only — verify current law with an attorney.',
+    'Type a Florida statute number (for example 784.03) for a plain-language overview. Educational only. Verify current law with an attorney.',
   statuteCodeLabel: 'Statute number',
   statuteLookupAction: 'Look up',
   statuteEnterCode: 'Enter a statute number first.',
@@ -115,7 +153,12 @@ const en = {
   locationsLoadError: 'Could not load map results. Check your connection and try again.',
   locationsRetry: 'Try again',
   locationsUsingFallback:
-    'Location permission off — showing results near Orlando, FL. Enable location for nearby results.',
+    'Location permission off. Showing results near Orlando, FL. Enable location for nearby results.',
+  locationsSearchPlaceholder: 'City or ZIP (anywhere)',
+  locationsSearch: 'Search',
+  locationsUseMyLocation: 'Use my location',
+  locationsCityNotFound: 'Could not find that place. Try “City, Country” or a ZIP/postal code.',
+  locationsUsingCity: 'Showing results near',
   locationsDirections: 'Directions',
   locationsMapYou: 'You',
   locationsMapApprox: 'Approx.',
@@ -161,7 +204,7 @@ const en = {
   translatorOpenPoliceCards: 'Communication cards',
   speakEnglish: 'Speak English',
   speakRussian: 'Speak Russian',
-  /** Static labels — do not swap with app language */
+  /** Static labels. Do not swap with app language. */
   speakEnglishFixed: 'Speak English',
   speakRussianFixed: 'Говорить по-русски',
   stopSpeaking: 'Stop',
@@ -172,8 +215,8 @@ const en = {
   noConsent: 'I do not consent to a search',
   noEnglish: "I don't understand English",
   steps: 'Steps',
-  disclaimer:
-    'Educational information only. Not legal advice. Gera Sheriff is not an attorney.',
+  /** Predicate only — "German Bickbau (Gera Sheriff)" is prepended in code (always English). */
+  disclaimer: 'is not an attorney.',
   emptySearch: 'No results found',
   welcomeBack: 'Welcome back',
   getStarted: 'Get started',
@@ -194,30 +237,23 @@ const en = {
   guestContinue: 'Continue as guest',
   version: 'Version 1.0',
   tutorial: 'Tutorial',
-  tutorialSwipe: 'Swipe for more →',
-  tutorialHomeTitle: 'Home',
+  tutorialSwipeNext: 'Swipe for more →',
+  tutorialSwipeBoth: '← Swipe →',
+  tutorialSwipeBack: '← Swipe back',
   tutorialHomeBody:
-    'Your dashboard: emergency access, category shortcuts, and featured Gera Sheriff videos.',
-  tutorialLibraryTitle: 'Library',
+    'Your dashboard for emergency help, GPS, translator, and learning shortcuts.',
   tutorialLibraryBody:
-    'YouTube videos by topic and Gera Sheriff books in one place. Switch between Videos and Books.',
-  tutorialEmergencyTitle: 'Emergency',
+    'YouTube videos by topic and Gera Sheriff books in one place.',
   tutorialEmergencyBody:
     'Quick static guides for police stops, accidents, and more. Call 911 when needed.',
-  tutorialPoliceTitle: 'Police cards',
   tutorialPoliceBody:
     'Tap a card to speak a clear English phrase out loud for the officer.',
-  tutorialArticlesTitle: 'Articles',
   tutorialArticlesBody: 'Short educational articles about rights, documents, and Florida basics.',
-  tutorialGlossaryTitle: 'Glossary',
-  tutorialGlossaryBody: 'Simple explanations of Florida legal terms in English and Russian.',
-  tutorialLawLibraryTitle: 'Law Library',
+  tutorialGlossaryBody: 'Simple explanations of Florida legal terms in your language.',
   tutorialLawLibraryBody:
-    'Florida State Law Library: concise topic guides on criminal, traffic, firearms, and more.',
-  tutorialCaseRoadmapTitle: 'Case roadmap',
+    'Florida State Law Library: concise guides on criminal law, traffic, firearms, and more.',
   tutorialCaseRoadmapBody:
     'Visual path of a criminal case from arrest to appeal, with a short explanation under each stage.',
-  tutorialProfileTitle: 'Settings',
   tutorialProfileBody: 'Choose your language pair. The top toggle switches between that language and English.',
 };
 
@@ -242,6 +278,8 @@ const ru: typeof en = {
   portuguese: 'Португальский',
   frenchCreole: 'Гаитянский креольский',
   languagePairHint: 'Верхняя панель переключает между этим языком и английским.',
+  languageEnglishOnlyHint:
+    'Только английский. Переключатель сверху скрыт. Выберите другой язык ниже, чтобы вернуть его.',
   languageOnboardingTitle: 'Какой у вас родной язык?',
   languageOnboardingHint:
     'Язык всегда можно сменить в Настройках (внизу справа).',
@@ -251,7 +289,7 @@ const ru: typeof en = {
   california: 'Калифорния',
   newYork: 'Нью-Йорк',
   comingSoon: 'Скоро',
-  comingSoonStates: 'Далее — Калифорния и Нью-Йорк',
+  comingSoonStates: 'Далее: Калифорния и Нью-Йорк',
   partnerAttorneysSoon: 'Адвокаты-партнёры, которые сотрудничают с Gera Sheriff',
   featuredVideo: 'Рекомендуемое',
   newest: 'НОВОЕ',
@@ -278,10 +316,11 @@ const ru: typeof en = {
   youtubeLibrary: 'Библиотека YouTube',
   policeCards: 'Карточки для полиции',
   translator: 'Переводчик',
-  translatorIntro: 'Напишите фразу. Ниже появится английский — воспроизведите для офицера.',
+  translatorIntro:
+    'Напишите или надиктуйте фразу. Ниже появится английский. Воспроизведите для офицера.',
   translatorYourLanguage: 'Ваш язык',
   translatorEnglish: 'Английский для офицера',
-  translatorPlaceholder: 'Напишите, что хотите сказать…',
+  translatorPlaceholder: 'Напишите или надиктуйте, что хотите сказать…',
   translatorTranslate: 'Перевести',
   translatorSpeakEnglish: 'Воспроизвести для офицера',
   translatorClear: 'Очистить',
@@ -290,23 +329,58 @@ const ru: typeof en = {
   translatorDisclaimer:
     'Автоматический перевод может быть неточным. Для важных прав используйте карточки для полиции.',
   translatorKeyboardHint:
-    'Нажмите 🌐 для своей клавиатуры. Диктовка — через микрофон на клавиатуре (встроен в iPhone/Android).',
+    'Нажмите 🌐 для своей клавиатуры или кнопку микрофона для диктовки.',
+  translatorDictate: 'Диктовка',
+  translatorListening: 'Слушаю… нажмите, чтобы остановить',
+  translatorMicDenied:
+    'Нужен доступ к микрофону и распознаванию речи для диктовки.',
+  translatorMicUnavailable: 'Распознавание речи недоступно на этом устройстве.',
+  translatorMicNeedsBuild:
+    'Диктовка нужна в новой сборке приложения (TestFlight). Пока введите текст или используйте микрофон клавиатуры.',
   translatorDone: 'Готово',
-  glossary: 'Юридический словарь Флориды',
+  glossary: 'Юридический словарь',
   glossaryIntro:
-    'Поиск по важным юридическим терминам на русском и английском. Только для обучения — не юридическая консультация.',
+    'Поиск по важным юридическим терминам. Только для обучения. Не юридическая консультация.',
   glossarySearchPlaceholder: 'Поиск: arraignment, залог, Миранда…',
   articlesSearchPlaceholder: 'Поиск статей…',
   glossaryTermsCount: 'терминов',
   lawLibrary: 'Юридическая библиотека Флориды',
   lawLibraryIntro:
-    'Краткие гиды по законам Флориды: уголовное и дорожное право, оружие, самооборона, домашнее насилие, иммиграция и суды. Только для обучения — не юридическая консультация.',
+    'Краткие гиды по законам Флориды: уголовное и дорожное право, оружие, самооборона, домашнее насилие, иммиграция и суды. Только для обучения. Не юридическая консультация.',
   lawLibrarySearchPlaceholder: 'Поиск внутри темы…',
   caseRoadmap: 'Карта уголовного дела',
+  officialLinks: 'Информационные сайты',
+  officialLinksIntro:
+    'Откройте официальные сайты для поиска под стражей, статуса иммиграционных/судебных дел или лицензий Флориды. Ссылки открываются вне приложения.',
+  officialLinksFindPeople: 'Поиск людей под стражей',
+  officialLinksImmigration: 'Статус иммиграционного дела',
+  officialLinksCourts: 'Суды и статуты',
+  officialLinksLicenses: 'Лицензии и ID',
+  consultations: 'Консультации',
+  consultationsEyebrow: 'Связаться лично',
+  consultationsTitle: 'Ваш вопрос',
+  consultationsIntro:
+    'Кратко опишите ситуацию. Письмо откроется в вашем почтовом приложении — останется отправить его.',
+  consultationsTopic: 'Тема',
+  consultationsName: 'Как к вам обращаться',
+  consultationsNamePlaceholder: 'Ваше имя',
+  consultationsLocation: 'Город / часовой пояс',
+  consultationsLocationPlaceholder: 'Например, Майами',
+  consultationsMessage: 'Что вы хотели бы обсудить?',
+  consultationsMessagePlaceholder: 'Основные обстоятельства и ваш вопрос',
+  consultationsNote:
+    'Заявка не отправляется автоматически. До согласования консультации достаточно общего описания.',
+  consultationsOpenEmail: 'Открыть письмо для отправки',
+  consultationsOrWrite: 'Или напишите напрямую:',
+  consultationsCopyDraft: 'Скопировать текст заявки',
+  consultationsCopied: 'Текст заявки скопирован',
+  consultationsNameRequired: 'Пожалуйста, укажите имя.',
+  consultationsMessageRequired: 'Пожалуйста, опишите, что хотите обсудить.',
+  consultationsMailFailed: 'Не удалось открыть почту. Скопируйте текст и отправьте вручную.',
   caseRoadmapIntro:
-    'Простая схема типичного уголовного дела во Флориде — под каждым этапом короткое пояснение. Только для обучения — не юридическая консультация.',
+    'Простая схема типичного уголовного дела во Флориде, под каждым этапом короткое пояснение. Только для обучения. Не юридическая консультация.',
   caseRoadmapFlow: 'Ход дела',
-  caseRoadmapTapHint: 'Нажмите на блок, чтобы открыть термин в юридическом словаре Флориды.',
+  caseRoadmapTapHint: 'Нажмите на блок, чтобы открыть термин в юридическом словаре.',
   clerkOfCourts: 'Clerk of Courts (суд. канцелярия)',
   clerkOfCourtsNearby: 'Найти ближайшие офисы Clerk of Courts на карте',
   clerkOfCourtsWebsite: 'Сайт Florida Court Clerks',
@@ -314,7 +388,7 @@ const ru: typeof en = {
   statuteLookup: 'Поиск уголовного статута',
   statuteLookupHint: 'Цифровая панель · например 784.03',
   statuteLookupIntro:
-    'Введите номер статута Флориды (например 784.03) для простого обзора. Только обучение — актуальный закон уточняйте у адвоката.',
+    'Введите номер статута Флориды (например 784.03) для простого обзора. Только обучение. Актуальный закон уточняйте у адвоката.',
   statuteCodeLabel: 'Номер статута',
   statuteLookupAction: 'Найти',
   statuteEnterCode: 'Сначала введите номер статута.',
@@ -330,13 +404,18 @@ const ru: typeof en = {
   emergencyLocations: 'GPS',
   emergencyLocationsIntro:
     'Найдите рядом больницы, полицию, суды, приюты и другое по вашему местоположению.',
-  locationsUrgent911: 'Если нужна срочная помощь — звоните 911.',
+  locationsUrgent911: 'Если нужна срочная помощь, звоните 911.',
   locationsLoading: 'Ищем ближайшие места…',
   locationsEmpty: 'Рядом ничего не найдено. Попробуйте другую категорию или город.',
   locationsLoadError: 'Не удалось загрузить результаты. Проверьте интернет и попробуйте снова.',
   locationsRetry: 'Повторить',
   locationsUsingFallback:
-    'Геолокация выключена — показаны результаты около Орландо, Флорида. Включите геолокацию для поиска рядом.',
+    'Геолокация выключена. Показаны результаты около Орландо, Флорида. Включите геолокацию для поиска рядом.',
+  locationsSearchPlaceholder: 'Город или индекс (любая страна)',
+  locationsSearch: 'Искать',
+  locationsUseMyLocation: 'Моё местоположение',
+  locationsCityNotFound: 'Не удалось найти это место. Попробуйте «Город, страна» или индекс.',
+  locationsUsingCity: 'Результаты рядом с',
   locationsDirections: 'Маршрут',
   locationsMapYou: 'Вы',
   locationsMapApprox: 'Примерно',
@@ -392,8 +471,7 @@ const ru: typeof en = {
   noConsent: 'Я не даю согласия на обыск',
   noEnglish: 'Я не понимаю английский',
   steps: 'Шаги',
-  disclaimer:
-    'Только образовательная информация. Не является юридической консультацией. Gera Sheriff — не адвокат.',
+  disclaimer: 'не является адвокатом.',
   emptySearch: 'Ничего не найдено',
   welcomeBack: 'С возвращением',
   getStarted: 'Начать',
@@ -414,30 +492,23 @@ const ru: typeof en = {
   guestContinue: 'Продолжить как гость',
   version: 'Версия 1.0',
   tutorial: 'Обучение',
-  tutorialSwipe: 'Листайте дальше →',
-  tutorialHomeTitle: 'Главная',
+  tutorialSwipeNext: 'Листайте дальше →',
+  tutorialSwipeBoth: '← Листайте →',
+  tutorialSwipeBack: '← Назад',
   tutorialHomeBody:
-    'Ваша панель: экстренный доступ, категории и избранные видео Gera Sheriff.',
-  tutorialLibraryTitle: 'Библиотека',
+    'Ваша панель для экстренной помощи, GPS, переводчика и обучающих разделов.',
   tutorialLibraryBody:
-    'Видео YouTube по темам и книги Gera Sheriff в одном месте. Переключайте Видео и Книги.',
-  tutorialEmergencyTitle: 'Экстренно',
+    'Видео YouTube по темам и книги Gera Sheriff в одном месте.',
   tutorialEmergencyBody:
     'Краткие инструкции при остановке, ДТП и другом. При угрозе звоните 911.',
-  tutorialPoliceTitle: 'Карточки для полиции',
   tutorialPoliceBody:
-    'Нажмите на карточку — приложение произнесёт английскую фразу для полицейского.',
-  tutorialArticlesTitle: 'Статьи',
+    'Нажмите на карточку. Приложение произнесёт английскую фразу для полицейского.',
   tutorialArticlesBody: 'Короткие образовательные статьи о правах, документах и основах Флориды.',
-  tutorialGlossaryTitle: 'Словарь',
-  tutorialGlossaryBody: 'Простые объяснения юридических терминов Флориды на русском и английском.',
-  tutorialLawLibraryTitle: 'Юр. библиотека',
+  tutorialGlossaryBody: 'Простые объяснения юридических терминов Флориды на вашем языке.',
   tutorialLawLibraryBody:
     'Юридическая библиотека Флориды: краткие темы по уголовному праву, дорожному праву, оружию и другому.',
-  tutorialCaseRoadmapTitle: 'Карта дела',
   tutorialCaseRoadmapBody:
-    'Наглядный путь уголовного дела от ареста до апелляции — под каждым этапом короткое пояснение.',
-  tutorialProfileTitle: 'Настройки',
+    'Наглядный путь уголовного дела от ареста до апелляции, под каждым этапом короткое пояснение.',
   tutorialProfileBody: 'Выберите языковую пару. Верхний переключатель меняет этот язык и английский.',
 };
 
@@ -462,6 +533,8 @@ const es: typeof en = {
   portuguese: 'Portugués',
   frenchCreole: 'Criollo haitiano',
   languagePairHint: 'La barra superior cambia entre este idioma e inglés.',
+  languageEnglishOnlyHint:
+    'Solo inglés. El interruptor de arriba está oculto. Elige otro idioma abajo para reactivarlo.',
   languageOnboardingTitle: '¿Cuál es tu idioma nativo?',
   languageOnboardingHint:
     'Siempre puedes cambiar el idioma en Ajustes (abajo a la derecha).',
@@ -498,10 +571,11 @@ const es: typeof en = {
   youtubeLibrary: 'Biblioteca de YouTube',
   policeCards: 'Tarjetas para la policía',
   translator: 'Traductor',
-  translatorIntro: 'Escribe una frase. La traducción al inglés aparecerá abajo; reprodúcela para el oficial.',
+  translatorIntro:
+    'Escribe o dicta una frase. El inglés aparece abajo. Repródúcelo para el oficial.',
   translatorYourLanguage: 'Tu idioma',
   translatorEnglish: 'Inglés para el oficial',
-  translatorPlaceholder: 'Escribe lo que quieres decir…',
+  translatorPlaceholder: 'Escribe o dicta lo que quieres decir…',
   translatorTranslate: 'Traducir',
   translatorSpeakEnglish: 'Reproducir para el oficial',
   translatorClear: 'Borrar',
@@ -510,23 +584,58 @@ const es: typeof en = {
   translatorDisclaimer:
     'La traducción automática puede ser imperfecta. Cuando se trate de derechos importantes, usa las tarjetas para la policía.',
   translatorKeyboardHint:
-    'Toca 🌐 para tu idioma. Dicta con el micrófono del teclado (incluido en iPhone/Android).',
+    'Toca 🌐 para tu teclado, o el micrófono para dictar.',
+  translatorDictate: 'Dictar',
+  translatorListening: 'Escuchando… toca para detener',
+  translatorMicDenied:
+    'Se necesita permiso de micrófono y reconocimiento de voz para dictar.',
+  translatorMicUnavailable: 'El reconocimiento de voz no está disponible en este dispositivo.',
+  translatorMicNeedsBuild:
+    'Dictar requiere una nueva versión de la app (TestFlight). Mientras tanto, escribe o usa el micrófono del teclado.',
   translatorDone: 'Listo',
-  glossary: 'Glosario legal de Florida',
+  glossary: 'Glosario legal',
   glossaryIntro:
-    'Diccionario de términos legales importantes en inglés (también disponible en ruso). Solo educativo — no es asesoramiento legal.',
+    'Diccionario de términos legales importantes. Solo educativo. No es asesoramiento legal.',
   glossarySearchPlaceholder: 'Buscar: arraignment, fianza, Miranda…',
   articlesSearchPlaceholder: 'Buscar artículos…',
   glossaryTermsCount: 'términos',
   lawLibrary: 'Biblioteca legal del estado de Florida',
   lawLibraryIntro:
-    'Guías breves sobre Florida: derecho penal, leyes de tránsito, armas, autodefensa, violencia doméstica, inmigración y procedimientos judiciales. Solo educativo — no es asesoramiento legal.',
+    'Guías breves sobre Florida: derecho penal, leyes de tránsito, armas, autodefensa, violencia doméstica, inmigración y procedimientos judiciales. Solo educativo. No es asesoramiento legal.',
   lawLibrarySearchPlaceholder: 'Buscar dentro de este tema…',
   caseRoadmap: 'Mapa de un caso penal',
+  officialLinks: 'Consultas oficiales',
+  officialLinksIntro:
+    'Abre sitios oficiales para buscar custodia, casos de inmigración/tribunales o licencias de Florida. Los enlaces salen de la app.',
+  officialLinksFindPeople: 'Buscar personas bajo custodia',
+  officialLinksImmigration: 'Estado del caso de inmigración',
+  officialLinksCourts: 'Tribunales y estatutos',
+  officialLinksLicenses: 'Licencias e identificaciones',
+  consultations: 'Consultas',
+  consultationsEyebrow: 'Contacto personal',
+  consultationsTitle: 'Su pregunta',
+  consultationsIntro:
+    'Describa brevemente la situación. El correo se abrirá en su aplicación de email; solo tendrá que enviarlo.',
+  consultationsTopic: 'Tema',
+  consultationsName: '¿Cómo debemos dirigirnos a usted?',
+  consultationsNamePlaceholder: 'Su nombre',
+  consultationsLocation: 'Ciudad / zona horaria',
+  consultationsLocationPlaceholder: 'Por ejemplo, Miami',
+  consultationsMessage: '¿Qué le gustaría discutir?',
+  consultationsMessagePlaceholder: 'Circunstancias básicas y su pregunta',
+  consultationsNote:
+    'La solicitud no se envía automáticamente. Una descripción general es suficiente hasta acordar una consulta.',
+  consultationsOpenEmail: 'Abrir el correo para enviar',
+  consultationsOrWrite: 'O escriba directamente a:',
+  consultationsCopyDraft: 'Copiar el texto de la solicitud',
+  consultationsCopied: 'Texto de la solicitud copiado',
+  consultationsNameRequired: 'Por favor, indique su nombre.',
+  consultationsMessageRequired: 'Por favor, describa qué desea discutir.',
+  consultationsMailFailed: 'No se pudo abrir el correo. Copie el texto y envíelo manualmente.',
   caseRoadmapIntro:
-    'Un diagrama sencillo del recorrido de un caso penal típico en Florida, con una nota breve bajo cada etapa. Solo educativo — no es asesoramiento legal.',
+    'Un diagrama sencillo del recorrido de un caso penal típico en Florida, con una nota breve bajo cada etapa. Solo educativo. No es asesoramiento legal.',
   caseRoadmapFlow: 'Flujo del caso',
-  caseRoadmapTapHint: 'Toca un recuadro para abrir ese término en el Glosario legal de Florida.',
+  caseRoadmapTapHint: 'Toca un recuadro para abrir ese término en el Glosario legal.',
   clerkOfCourts: 'Clerk of Courts (oficina del tribunal)',
   clerkOfCourtsNearby: 'Encontrar oficinas de Clerk of Courts cercanas en el mapa',
   clerkOfCourtsWebsite: 'Sitio web de Florida Court Clerks',
@@ -534,7 +643,7 @@ const es: typeof en = {
   statuteLookup: 'Consulta de estatutos penales',
   statuteLookupHint: 'Teclado numérico · p. ej. 784.03',
   statuteLookupIntro:
-    'Escribe un número de estatuto de Florida (por ejemplo 784.03) para una explicación sencilla. Solo educativo — verifica la ley actual con un abogado.',
+    'Escribe un número de estatuto de Florida (por ejemplo 784.03) para una explicación sencilla. Solo educativo. Verifica la ley actual con un abogado.',
   statuteCodeLabel: 'Número de estatuto',
   statuteLookupAction: 'Consultar',
   statuteEnterCode: 'Primero ingresa un número de estatuto.',
@@ -556,7 +665,12 @@ const es: typeof en = {
   locationsLoadError: 'No se pudieron cargar los resultados del mapa. Revisa tu conexión e intenta de nuevo.',
   locationsRetry: 'Intentar de nuevo',
   locationsUsingFallback:
-    'Permiso de ubicación desactivado — mostrando resultados cerca de Orlando, FL. Activa la ubicación para resultados cercanos.',
+    'Permiso de ubicación desactivado. Mostrando resultados cerca de Orlando, FL. Activa la ubicación para resultados cercanos.',
+  locationsSearchPlaceholder: 'Ciudad o código postal (cualquier país)',
+  locationsSearch: 'Buscar',
+  locationsUseMyLocation: 'Usar mi ubicación',
+  locationsCityNotFound: 'No se encontró ese lugar. Prueba “Ciudad, País” o un código postal.',
+  locationsUsingCity: 'Mostrando resultados cerca de',
   locationsDirections: 'Indicaciones',
   locationsMapYou: 'Tú',
   locationsMapApprox: 'Aprox.',
@@ -612,8 +726,7 @@ const es: typeof en = {
   noConsent: 'No doy mi consentimiento para ningún registro',
   noEnglish: 'No entiendo inglés',
   steps: 'Pasos',
-  disclaimer:
-    'Solo información educativa. No es asesoramiento legal. Gera Sheriff no es abogado.',
+  disclaimer: 'no es abogado.',
   emptySearch: 'No se encontraron resultados',
   welcomeBack: 'Bienvenido de nuevo',
   getStarted: 'Comenzar',
@@ -634,30 +747,23 @@ const es: typeof en = {
   guestContinue: 'Continuar como invitado',
   version: 'Versión 1.0',
   tutorial: 'Guía',
-  tutorialSwipe: 'Desliza para ver más →',
-  tutorialHomeTitle: 'Inicio',
+  tutorialSwipeNext: 'Desliza para ver más →',
+  tutorialSwipeBoth: '← Desliza →',
+  tutorialSwipeBack: '← Volver',
   tutorialHomeBody:
-    'Tu panel: acceso de emergencia, accesos directos por categoría y videos destacados de Gera Sheriff.',
-  tutorialLibraryTitle: 'Biblioteca',
+    'Tu panel de ayuda de emergencia, GPS, traductor y atajos para aprender.',
   tutorialLibraryBody:
-    'Videos de YouTube por tema y libros de Gera Sheriff en un solo lugar. Cambia entre Videos y Libros.',
-  tutorialEmergencyTitle: 'Emergencia',
+    'Videos de YouTube por tema y libros de Gera Sheriff en un solo lugar.',
   tutorialEmergencyBody:
     'Guías rápidas para paradas policiales, accidentes y más. Llama al 911 cuando sea necesario.',
-  tutorialPoliceTitle: 'Tarjetas para la policía',
   tutorialPoliceBody:
     'Toca una tarjeta para reproducir en voz alta una frase clara en inglés para el oficial.',
-  tutorialArticlesTitle: 'Artículos',
   tutorialArticlesBody: 'Artículos educativos breves sobre derechos, documentos y aspectos básicos de Florida.',
-  tutorialGlossaryTitle: 'Glosario',
-  tutorialGlossaryBody: 'Explicaciones sencillas de términos legales de Florida en inglés (y ruso).',
-  tutorialLawLibraryTitle: 'Biblioteca legal',
+  tutorialGlossaryBody: 'Explicaciones sencillas de términos legales de Florida en tu idioma.',
   tutorialLawLibraryBody:
     'Biblioteca legal de Florida: guías breves sobre derecho penal, leyes de tránsito, armas y más.',
-  tutorialCaseRoadmapTitle: 'Mapa del caso',
   tutorialCaseRoadmapBody:
     'Camino visual de un caso penal desde el arresto hasta la apelación, con una explicación breve bajo cada etapa.',
-  tutorialProfileTitle: 'Ajustes',
   tutorialProfileBody: 'Elige tu par de idiomas. El interruptor superior cambia entre ese idioma e inglés.',
 };
 
@@ -682,6 +788,8 @@ const pt: typeof en = {
   portuguese: 'Português',
   frenchCreole: 'Crioulo haitiano',
   languagePairHint: 'A barra superior alterna entre este idioma e o inglês.',
+  languageEnglishOnlyHint:
+    'Somente inglês. O interruptor no topo fica oculto. Escolha outro idioma abaixo para reativá-lo.',
   languageOnboardingTitle: 'Qual é o seu idioma nativo?',
   languageOnboardingHint:
     'Você sempre pode mudar o idioma em Configurações (canto inferior direito).',
@@ -718,10 +826,11 @@ const pt: typeof en = {
   youtubeLibrary: 'Biblioteca do YouTube',
   policeCards: 'Cartões para a polícia',
   translator: 'Tradutor',
-  translatorIntro: 'Digite uma frase. O inglês aparece abaixo — reproduza para o policial.',
+  translatorIntro:
+    'Digite ou dite uma frase. O inglês aparece abaixo. Reproduza para o policial.',
   translatorYourLanguage: 'Seu idioma',
   translatorEnglish: 'Inglês para o policial',
-  translatorPlaceholder: 'Digite o que você quer dizer…',
+  translatorPlaceholder: 'Digite ou dite o que você quer dizer…',
   translatorTranslate: 'Traduzir',
   translatorSpeakEnglish: 'Reproduzir para o policial',
   translatorClear: 'Limpar',
@@ -730,23 +839,58 @@ const pt: typeof en = {
   translatorDisclaimer:
     'A tradução automática pode ser imperfeita. Para direitos importantes, use os cartões para a polícia.',
   translatorKeyboardHint:
-    'Toque 🌐 para o teclado do seu idioma. Ditado: use o microfone do teclado (já vem no iPhone/Android).',
+    'Toque 🌐 para o teclado, ou o microfone para ditar.',
+  translatorDictate: 'Ditar',
+  translatorListening: 'Ouvindo… toque para parar',
+  translatorMicDenied:
+    'É necessário permissão de microfone e reconhecimento de fala para ditar.',
+  translatorMicUnavailable: 'O reconhecimento de fala não está disponível neste dispositivo.',
+  translatorMicNeedsBuild:
+    'Ditar precisa de uma nova versão do app (TestFlight). Por enquanto, digite ou use o microfone do teclado.',
   translatorDone: 'Pronto',
-  glossary: 'Glossário jurídico da Flórida',
+  glossary: 'Glossário jurídico',
   glossaryIntro:
-    'Dicionário de termos jurídicos importantes em inglês (também disponível em russo). Apenas educativo — não é aconselhamento jurídico.',
+    'Dicionário de termos jurídicos importantes. Apenas educativo. Não é aconselhamento jurídico.',
   glossarySearchPlaceholder: 'Buscar: arraignment, fiança, Miranda…',
   articlesSearchPlaceholder: 'Buscar artigos…',
   glossaryTermsCount: 'termos',
   lawLibrary: 'Biblioteca jurídica do estado da Flórida',
   lawLibraryIntro:
-    'Guias curtos sobre a Flórida: direito penal, leis de trânsito, armas, autodefesa, violência doméstica, imigração e procedimentos judiciais. Apenas educativo — não é aconselhamento jurídico.',
+    'Guias curtos sobre a Flórida: direito penal, leis de trânsito, armas, autodefesa, violência doméstica, imigração e procedimentos judiciais. Apenas educativo. Não é aconselhamento jurídico.',
   lawLibrarySearchPlaceholder: 'Buscar neste tema…',
   caseRoadmap: 'Mapa de um caso criminal',
+  officialLinks: 'Consultas oficiais',
+  officialLinksIntro:
+    'Abra sites oficiais para procurar custódia, casos de imigração/tribunais ou licenças da Flórida. Os links saem do app.',
+  officialLinksFindPeople: 'Procurar pessoas sob custódia',
+  officialLinksImmigration: 'Status do caso de imigração',
+  officialLinksCourts: 'Tribunais e estatutos',
+  officialLinksLicenses: 'Licenças e documentos',
+  consultations: 'Consultas',
+  consultationsEyebrow: 'Contato pessoal',
+  consultationsTitle: 'Sua pergunta',
+  consultationsIntro:
+    'Descreva brevemente a situação. O e-mail abrirá no seu aplicativo de correio — basta enviar.',
+  consultationsTopic: 'Assunto',
+  consultationsName: 'Como devemos nos dirigir a você?',
+  consultationsNamePlaceholder: 'Seu nome',
+  consultationsLocation: 'Cidade / fuso horário',
+  consultationsLocationPlaceholder: 'Por exemplo, Miami',
+  consultationsMessage: 'O que você gostaria de discutir?',
+  consultationsMessagePlaceholder: 'Circunstâncias básicas e sua pergunta',
+  consultationsNote:
+    'A solicitação não é enviada automaticamente. Uma descrição geral é suficiente até combinar uma consulta.',
+  consultationsOpenEmail: 'Abrir o e-mail para enviar',
+  consultationsOrWrite: 'Ou escreva diretamente para:',
+  consultationsCopyDraft: 'Copiar o texto da solicitação',
+  consultationsCopied: 'Texto da solicitação copiado',
+  consultationsNameRequired: 'Por favor, informe seu nome.',
+  consultationsMessageRequired: 'Por favor, descreva o que deseja discutir.',
+  consultationsMailFailed: 'Não foi possível abrir o e-mail. Copie o texto e envie manualmente.',
   caseRoadmapIntro:
-    'Um diagrama simples do percurso de um caso criminal típico na Flórida, com uma nota curta em cada etapa. Apenas educativo — não é aconselhamento jurídico.',
+    'Um diagrama simples do percurso de um caso criminal típico na Flórida, com uma nota curta em cada etapa. Apenas educativo. Não é aconselhamento jurídico.',
   caseRoadmapFlow: 'Fluxo do caso',
-  caseRoadmapTapHint: 'Toque em um quadro para abrir esse termo no Glossário jurídico da Flórida.',
+  caseRoadmapTapHint: 'Toque em um quadro para abrir esse termo no Glossário jurídico.',
   clerkOfCourts: 'Clerk of Courts (cartório do tribunal)',
   clerkOfCourtsNearby: 'Encontrar escritórios de Clerk of Courts próximos no mapa',
   clerkOfCourtsWebsite: 'Site da Florida Court Clerks',
@@ -754,7 +898,7 @@ const pt: typeof en = {
   statuteLookup: 'Consulta de estatuto penal',
   statuteLookupHint: 'Teclado numérico · ex.: 784.03',
   statuteLookupIntro:
-    'Digite um número de estatuto da Flórida (por exemplo 784.03) para uma explicação simples. Apenas educativo — confirme a lei atual com um advogado.',
+    'Digite um número de estatuto da Flórida (por exemplo 784.03) para uma explicação simples. Apenas educativo. Confirme a lei atual com um advogado.',
   statuteCodeLabel: 'Número do estatuto',
   statuteLookupAction: 'Consultar',
   statuteEnterCode: 'Digite um número de estatuto primeiro.',
@@ -776,7 +920,12 @@ const pt: typeof en = {
   locationsLoadError: 'Não foi possível carregar os resultados do mapa. Verifique sua conexão e tente novamente.',
   locationsRetry: 'Tentar novamente',
   locationsUsingFallback:
-    'Permissão de localização desativada — mostrando resultados perto de Orlando, FL. Ative a localização para resultados próximos.',
+    'Permissão de localização desativada. Mostrando resultados perto de Orlando, FL. Ative a localização para resultados próximos.',
+  locationsSearchPlaceholder: 'Cidade ou CEP (qualquer país)',
+  locationsSearch: 'Buscar',
+  locationsUseMyLocation: 'Usar minha localização',
+  locationsCityNotFound: 'Não encontramos esse lugar. Tente “Cidade, País” ou um CEP.',
+  locationsUsingCity: 'Mostrando resultados perto de',
   locationsDirections: 'Como chegar',
   locationsMapYou: 'Você',
   locationsMapApprox: 'Aprox.',
@@ -832,8 +981,7 @@ const pt: typeof en = {
   noConsent: 'Não autorizo nenhuma busca ou revista',
   noEnglish: 'Não entendo inglês',
   steps: 'Passos',
-  disclaimer:
-    'Apenas informação educativa. Não é aconselhamento jurídico. Gera Sheriff não é advogado.',
+  disclaimer: 'não é advogado.',
   emptySearch: 'Nenhum resultado encontrado',
   welcomeBack: 'Bem-vindo de volta',
   getStarted: 'Começar',
@@ -854,30 +1002,23 @@ const pt: typeof en = {
   guestContinue: 'Continuar como convidado',
   version: 'Versão 1.0',
   tutorial: 'Guia',
-  tutorialSwipe: 'Deslize para ver mais →',
-  tutorialHomeTitle: 'Início',
+  tutorialSwipeNext: 'Deslize para ver mais →',
+  tutorialSwipeBoth: '← Deslize →',
+  tutorialSwipeBack: '← Voltar',
   tutorialHomeBody:
-    'Seu painel: acesso de emergência, atalhos por categoria e vídeos em destaque do Gera Sheriff.',
-  tutorialLibraryTitle: 'Biblioteca',
+    'Seu painel de ajuda de emergência, GPS, tradutor e atalhos para aprender.',
   tutorialLibraryBody:
-    'Vídeos do YouTube por tema e livros do Gera Sheriff em um só lugar. Alterne entre Vídeos e Livros.',
-  tutorialEmergencyTitle: 'Emergência',
+    'Vídeos do YouTube por tema e livros do Gera Sheriff em um só lugar.',
   tutorialEmergencyBody:
     'Guias rápidos para abordagens policiais, acidentes e mais. Ligue para o 911 quando necessário.',
-  tutorialPoliceTitle: 'Cartões para a polícia',
   tutorialPoliceBody:
     'Toque um cartão para falar em voz alta uma frase clara em inglês para o policial.',
-  tutorialArticlesTitle: 'Artigos',
   tutorialArticlesBody: 'Artigos educativos curtos sobre direitos, documentos e o básico da Flórida.',
-  tutorialGlossaryTitle: 'Glossário',
-  tutorialGlossaryBody: 'Explicações simples de termos jurídicos da Flórida em inglês (e russo).',
-  tutorialLawLibraryTitle: 'Biblioteca jurídica',
+  tutorialGlossaryBody: 'Explicações simples de termos jurídicos da Flórida no seu idioma.',
   tutorialLawLibraryBody:
-    'Biblioteca jurídica da Flórida: guias curtos sobre penal, trânsito, armas e mais.',
-  tutorialCaseRoadmapTitle: 'Mapa do caso',
+    'Biblioteca jurídica da Flórida: guias curtos sobre direito penal, trânsito, armas e mais.',
   tutorialCaseRoadmapBody:
     'Caminho visual de um caso criminal desde a detenção até o recurso, com uma explicação curta em cada etapa.',
-  tutorialProfileTitle: 'Configurações',
   tutorialProfileBody: 'Escolha o par de idiomas. O interruptor superior alterna entre esse idioma e o inglês.',
 };
 
@@ -902,6 +1043,8 @@ const ht: typeof en = {
   portuguese: 'Pòtigè',
   frenchCreole: 'Kreyòl ayisyen',
   languagePairHint: 'Ba anlè a chanje ant lang sa a ak anglè.',
+  languageEnglishOnlyHint:
+    'Anglè sèlman. Switch anlè a kache. Chwazi yon lòt lang anba a pou remèt li.',
   languageOnboardingTitle: 'Ki lang natif natal ou?',
   languageOnboardingHint:
     'Ou ka toujou chanje lang nan Paramèt yo (anba adwat).',
@@ -938,10 +1081,11 @@ const ht: typeof en = {
   youtubeLibrary: 'Bibliyotèk YouTube',
   policeCards: 'Kat pou lapolis',
   translator: 'Tradiktè',
-  translatorIntro: 'Ekri yon fraz. Anglè a parèt anba — jwe li pou ofisye a.',
+  translatorIntro:
+    'Ekri oswa dikte yon fraz. Anglè a parèt anba. Jwe li pou ofisye a.',
   translatorYourLanguage: 'Lang ou',
   translatorEnglish: 'Anglè pou ofisye a',
-  translatorPlaceholder: 'Ekri sa ou vle di…',
+  translatorPlaceholder: 'Ekri oswa dikte sa ou vle di…',
   translatorTranslate: 'Tradui',
   translatorSpeakEnglish: 'Jwe li pou ofisye a',
   translatorClear: 'Efase',
@@ -950,23 +1094,58 @@ const ht: typeof en = {
   translatorDisclaimer:
     'Tradiksyon otomatik ka pa pafè. Pou dwa enpòtan, prefere kat pou lapolis yo.',
   translatorKeyboardHint:
-    'Peze 🌐 pou klavye lang ou. Ditasyon: itilize mikwofòn klavye a (li deja sou iPhone/Android).',
+    'Peze 🌐 pou klavye lang ou, oswa bouton mikwofòn pou dikte.',
+  translatorDictate: 'Dikte',
+  translatorListening: 'Ap koute… peze pou sispann',
+  translatorMicDenied:
+    'Ou bezwen pèmisyon mikwofòn ak rekonesans vwa pou dikte.',
+  translatorMicUnavailable: 'Rekonesans vwa pa disponib sou aparèy sa a.',
+  translatorMicNeedsBuild:
+    'Dikte bezwen yon nouvo vèsyon aplikasyon an (TestFlight). Pou kounye a, ekri oswa itilize mikwofòn klavye a.',
   translatorDone: 'Fini',
-  glossary: 'Glosè legal Florid',
+  glossary: 'Glosè legal',
   glossaryIntro:
-    'Diksyonè tèm legal enpòtan ann anglè (disponib an ris tou). Sèlman pou edikasyon — se pa konsèy legal.',
+    'Diksyonè tèm legal enpòtan. Sèlman pou edikasyon. Se pa konsèy legal.',
   glossarySearchPlaceholder: 'Chèche: arraignment, kosyon, Miranda…',
   articlesSearchPlaceholder: 'Chèche atik…',
   glossaryTermsCount: 'tèm',
   lawLibrary: 'Bibliyotèk lalwa eta Florid',
   lawLibraryIntro:
-    'Gid kout sou Florid: krim, sikilasyon, zam, oto-defans, vyolans domestik, imigrasyon ak pwosedi tribinal. Sèlman pou edikasyon — se pa konsèy legal.',
+    'Gid kout sou Florid: krim, sikilasyon, zam, oto-defans, vyolans domestik, imigrasyon ak pwosedi tribinal. Sèlman pou edikasyon. Se pa konsèy legal.',
   lawLibrarySearchPlaceholder: 'Chèche nan sijè sa a…',
   caseRoadmap: 'Kat chemen yon ka kriminèl',
+  officialLinks: 'Chèche ofisyèl',
+  officialLinksIntro:
+    'Louvri sit ofisyèl pou chèche detansyon, ka imigrasyon/tribinal, oswa lisans Florid. Lyen yo soti nan aplikasyon an.',
+  officialLinksFindPeople: 'Chèche moun an detansyon',
+  officialLinksImmigration: 'Estati ka imigrasyon',
+  officialLinksCourts: 'Tribinal ak lwa',
+  officialLinksLicenses: 'Lisans ak ID',
+  consultations: 'Konsiltasyon',
+  consultationsEyebrow: 'Kontakte pèsonèlman',
+  consultationsTitle: 'Kesyon ou',
+  consultationsIntro:
+    'Dekri sitiyasyon an yon ti jan. Imèl la ap louvri nan aplikasyon imèl ou — rete sèlman voye li.',
+  consultationsTopic: 'Sijè',
+  consultationsName: 'Ki jan nou dwe pale ak ou?',
+  consultationsNamePlaceholder: 'Non ou',
+  consultationsLocation: 'Vil / zon lè',
+  consultationsLocationPlaceholder: 'Pa egzanp, Miami',
+  consultationsMessage: 'Kisa ou ta renmen diskite?',
+  consultationsMessagePlaceholder: 'Sikonstans debaz ak kesyon ou',
+  consultationsNote:
+    'Demann lan pa voye otomatikman. Yon deskripsyon jeneral ase jiskaske yon konsiltasyon dakò.',
+  consultationsOpenEmail: 'Louvri lèt la pou voye',
+  consultationsOrWrite: 'Oswa ekri dirèkteman nan:',
+  consultationsCopyDraft: 'Kopye tèks demann lan',
+  consultationsCopied: 'Tèks demann lan kopye',
+  consultationsNameRequired: 'Tanpri antre non ou.',
+  consultationsMessageRequired: 'Tanpri dekri sa ou ta renmen diskite.',
+  consultationsMailFailed: 'Pa t kapab louvri imèl. Kopye tèks la epi voye manyèlman.',
   caseRoadmapIntro:
-    'Yon chemen vizyèl senp pou yon ka kriminèl tipik nan Florid, ak yon ti nòt anba chak etap. Sèlman pou edikasyon — se pa konsèy legal.',
+    'Yon chemen vizyèl senp pou yon ka kriminèl tipik nan Florid, ak yon ti nòt anba chak etap. Sèlman pou edikasyon. Se pa konsèy legal.',
   caseRoadmapFlow: 'Kou ka a',
-  caseRoadmapTapHint: 'Peze sou yon ti kare pou louvri tèm sa a nan Glosè legal Florid la.',
+  caseRoadmapTapHint: 'Peze sou yon ti kare pou louvri tèm sa a nan Glosè legal la.',
   clerkOfCourts: 'Clerk of Courts (biwo tribinal)',
   clerkOfCourtsNearby: 'Jwenn biwo Clerk of Courts ki tou pre sou kat la',
   clerkOfCourtsWebsite: 'Sit entènèt Florida Court Clerks',
@@ -974,7 +1153,7 @@ const ht: typeof en = {
   statuteLookup: 'Chèche nimewo lwa kriminèl',
   statuteLookupHint: 'Klavye nimewo · egzanp 784.03',
   statuteLookupIntro:
-    'Antre yon nimewo lwa Florid (pa egzanp 784.03) pou yon eksplikasyon senp. Sèlman pou edikasyon — verifye lalwa aktyèl la ak yon avoka.',
+    'Antre yon nimewo lwa Florid (pa egzanp 784.03) pou yon eksplikasyon senp. Sèlman pou edikasyon. Verifye lalwa aktyèl la ak yon avoka.',
   statuteCodeLabel: 'Nimewo lwa',
   statuteLookupAction: 'Chèche',
   statuteEnterCode: 'Antre yon nimewo lwa anvan.',
@@ -996,7 +1175,12 @@ const ht: typeof en = {
   locationsLoadError: 'Pa t kapab chaje rezilta kat la. Tcheke koneksyon ou epi eseye ankò.',
   locationsRetry: 'Eseye ankò',
   locationsUsingFallback:
-    'Otorizasyon pou lokalizasyon an dezaktive — ap montre rezilta tou pre Orlando, FL. Aktive lokalizasyon an pou jwenn rezilta tou pre.',
+    'Otorizasyon pou lokalizasyon an dezaktive. Ap montre rezilta tou pre Orlando, FL. Aktive lokalizasyon an pou jwenn rezilta tou pre.',
+  locationsSearchPlaceholder: 'Vil oswa kòd postal (nenpòt peyi)',
+  locationsSearch: 'Chèche',
+  locationsUseMyLocation: 'Sèvi ak lokalizasyon mwen',
+  locationsCityNotFound: 'Pa jwenn kote sa a. Eseye “Vil, Peyi” oswa yon kòd postal.',
+  locationsUsingCity: 'Ap montre rezilta tou pre',
   locationsDirections: 'Direksyon',
   locationsMapYou: 'Ou',
   locationsMapApprox: 'Aprox.',
@@ -1052,8 +1236,7 @@ const ht: typeof en = {
   noConsent: 'Mwen pa bay konsantman pou okenn fouy',
   noEnglish: 'Mwen pa konprann anglè',
   steps: 'Etap',
-  disclaimer:
-    'Sèlman enfòmasyon pou edikasyon. Se pa konsèy legal. Gera Sheriff pa yon avoka.',
+  disclaimer: 'pa yon avoka.',
   emptySearch: 'Pa jwenn rezilta',
   welcomeBack: 'Byenveni tounen',
   getStarted: 'Kòmanse',
@@ -1074,30 +1257,23 @@ const ht: typeof en = {
   guestContinue: 'Kontinye kòm envite',
   version: 'Vèsyon 1.0',
   tutorial: 'Gid',
-  tutorialSwipe: 'Glise pou wè plis →',
-  tutorialHomeTitle: 'Akèy',
+  tutorialSwipeNext: 'Glise pou wè plis →',
+  tutorialSwipeBoth: '← Glise →',
+  tutorialSwipeBack: '← Tounen',
   tutorialHomeBody:
-    'Tablo ou: aksè ijans, rakoursi kategori ak videyo Gera Sheriff an vedèt.',
-  tutorialLibraryTitle: 'Bibliyotèk',
+    'Tablo ou pou èd ijans, GPS, tradiktè, ak rakoursi pou aprann.',
   tutorialLibraryBody:
-    'Videyo YouTube pa sijè ak liv Gera Sheriff nan yon sèl kote. Chanje ant Videyo ak Liv.',
-  tutorialEmergencyTitle: 'Ijans',
+    'Videyo YouTube pa sijè ak liv Gera Sheriff nan yon sèl kote.',
   tutorialEmergencyBody:
     'Gid rapid pou arè polis, aksidan ak lòt bagay. Rele 911 lè sa nesesè.',
-  tutorialPoliceTitle: 'Kat pou lapolis',
   tutorialPoliceBody:
     'Peze yon kat pou jwe yon fraz ann anglè klè byen fò pou ofisye a.',
-  tutorialArticlesTitle: 'Atik',
   tutorialArticlesBody: 'Ti atik edikatif sou dwa, dokiman ak baz Florid la.',
-  tutorialGlossaryTitle: 'Glosè',
-  tutorialGlossaryBody: 'Eksplikasyon senp tèm legal Florid ann anglè (ak ris).',
-  tutorialLawLibraryTitle: 'Bibliyotèk legal',
+  tutorialGlossaryBody: 'Eksplikasyon senp tèm legal Florid nan lang ou.',
   tutorialLawLibraryBody:
-    'Bibliyotèk lalwa Florid: gid kout sou krim, sikilasyon, zam ak lòt bagay.',
-  tutorialCaseRoadmapTitle: 'Kat chemen ka a',
+    'Bibliyotèk lalwa Florid: gid kout sou lwa kriminèl, sikilasyon, zam ak lòt bagay.',
   tutorialCaseRoadmapBody:
     'Chemen vizyèl yon ka kriminèl soti nan arestasyon rive nan apèl, ak yon ti eksplikasyon anba chak etap.',
-  tutorialProfileTitle: 'Paramèt',
   tutorialProfileBody: 'Chwazi pè lang ou. Ba anlè a chanje ant lang sa a ak anglè.',
 };
 

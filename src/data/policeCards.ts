@@ -52,6 +52,16 @@ export const policeCards: PoliceCard[] = [
       },
     ],
   },
+  {
+    id: 'pc6',
+    titleEn: 'I applied for asylum',
+    titleRu: 'Я подал на беженство',
+    phraseEn:
+      'I have applied for asylum and my documents are currently under official review.',
+    phraseRu:
+      'Я подал на беженство и мои документы находятся в процессе официального рассмотрения',
+    color: colors.success,
+  },
 ];
 
 /** Primary + optional variant phrases for a card */

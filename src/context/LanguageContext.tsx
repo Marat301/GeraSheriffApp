@@ -10,21 +10,31 @@ import { Language, PreferredLanguage } from '../types';
 
 const LANG_KEY = '@gera_language';
 const PREFERRED_KEY = '@gera_preferred_language';
+const ENGLISH_ONLY_KEY = '@gera_english_only';
 /** Bump suffix when onboarding copy/flow changes so existing installs see it once more */
-const ONBOARDING_KEY = '@gera_language_onboarding_v2';
+const ONBOARDING_KEY = '@gera_language_onboarding_v3';
+
+/** Always English in disclaimers — do not translate this name. */
+const LEGAL_NAME_EN = 'German Bickbau (Gera Sheriff)';
 
 type LanguageContextValue = {
   /** Currently displayed UI language (EN or the preferred language) */
   language: Language;
   /** Non-English side of the top toggle (RU / SP / PT / HT) */
   preferredLanguage: PreferredLanguage;
+  /** True when the user chose English as their language — no EN/XX toggle */
+  englishOnly: boolean;
+  /** False when englishOnly — hide the floating language swap */
+  showLanguageToggle: boolean;
   needsLanguageOnboarding: boolean;
   setLanguage: (lang: Language) => Promise<void>;
   setPreferredLanguage: (
     lang: PreferredLanguage,
     options?: { activate?: boolean }
   ) => Promise<void>;
-  completeLanguageOnboarding: (lang: PreferredLanguage) => Promise<void>;
+  /** Choose English-only mode (hides language toggle) */
+  setEnglishOnly: () => Promise<void>;
+  completeLanguageOnboarding: (lang: Language) => Promise<void>;
   t: (key: TranslationKey) => string;
   toggleLanguage: () => Promise<void>;
 };
@@ -34,6 +44,7 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en');
   const [preferredLanguage, setPreferredState] = useState<PreferredLanguage>('ru');
+  const [englishOnly, setEnglishOnlyState] = useState(false);
   const [needsLanguageOnboarding, setNeedsOnboarding] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -42,14 +53,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(LANG_KEY),
       AsyncStorage.getItem(PREFERRED_KEY),
       AsyncStorage.getItem(ONBOARDING_KEY),
+      AsyncStorage.getItem(ENGLISH_ONLY_KEY),
     ])
-      .then(([storedActive, storedPreferred, onboardingDone]) => {
+      .then(([storedActive, storedPreferred, onboardingDone, storedEnglishOnly]) => {
         const preferred = normalizePreferred(
           storedPreferred ?? (isPreferredLanguage(storedActive) ? storedActive : 'ru')
         );
         setPreferredState(preferred);
 
-        if (storedActive === 'en') {
+        const onlyEnglish = storedEnglishOnly === '1';
+        setEnglishOnlyState(onlyEnglish);
+
+        if (onlyEnglish || storedActive === 'en') {
           setLanguageState('en');
         } else if (isLanguage(storedActive) && storedActive !== 'en') {
           setLanguageState(storedActive);
@@ -64,6 +79,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {
         setLanguageState('en');
         setPreferredState('ru');
+        setEnglishOnlyState(false);
         setNeedsOnboarding(true);
       })
       .finally(() => {
@@ -88,6 +104,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     async (lang: PreferredLanguage, options?: { activate?: boolean }) => {
       const activate = options?.activate ?? true;
       setPreferredState(lang);
+      setEnglishOnlyState(false);
       if (activate) {
         setLanguageState(lang);
       }
@@ -96,9 +113,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           await AsyncStorage.multiSet([
             [PREFERRED_KEY, lang],
             [LANG_KEY, lang],
+            [ENGLISH_ONLY_KEY, '0'],
           ]);
         } else {
-          await AsyncStorage.setItem(PREFERRED_KEY, lang);
+          await AsyncStorage.multiSet([
+            [PREFERRED_KEY, lang],
+            [ENGLISH_ONLY_KEY, '0'],
+          ]);
         }
       } catch {
         // Keep in-memory preference
@@ -107,14 +128,44 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const completeLanguageOnboarding = useCallback(async (lang: PreferredLanguage) => {
+  const setEnglishOnly = useCallback(async () => {
+    setEnglishOnlyState(true);
+    setLanguageState('en');
+    try {
+      await AsyncStorage.multiSet([
+        [LANG_KEY, 'en'],
+        [ENGLISH_ONLY_KEY, '1'],
+      ]);
+    } catch {
+      // Keep in-memory preference
+    }
+  }, []);
+
+  const completeLanguageOnboarding = useCallback(async (lang: Language) => {
+    setNeedsOnboarding(false);
+    if (lang === 'en') {
+      setEnglishOnlyState(true);
+      setLanguageState('en');
+      try {
+        await AsyncStorage.multiSet([
+          [LANG_KEY, 'en'],
+          [ENGLISH_ONLY_KEY, '1'],
+          [ONBOARDING_KEY, '1'],
+        ]);
+      } catch {
+        // Onboarding dismissed in-session; may show again next launch
+      }
+      return;
+    }
+
+    setEnglishOnlyState(false);
     setPreferredState(lang);
     setLanguageState(lang);
-    setNeedsOnboarding(false);
     try {
       await AsyncStorage.multiSet([
         [PREFERRED_KEY, lang],
         [LANG_KEY, lang],
+        [ENGLISH_ONLY_KEY, '0'],
         [ONBOARDING_KEY, '1'],
       ]);
     } catch {
@@ -123,13 +174,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleLanguage = useCallback(async () => {
+    if (englishOnly) return;
     const next: Language = language === 'en' ? preferredLanguage : 'en';
     await setLanguage(next);
-  }, [language, preferredLanguage, setLanguage]);
+  }, [englishOnly, language, preferredLanguage, setLanguage]);
 
   const t = useCallback(
-    (key: TranslationKey) =>
-      translations[language][key] ?? translations.en[key] ?? key,
+    (key: TranslationKey) => {
+      const value = translations[language][key] ?? translations.en[key] ?? key;
+      // Legal name must stay English in every UI language
+      if (key === 'disclaimer') return `${LEGAL_NAME_EN} ${value}`;
+      return value;
+    },
     [language]
   );
 
@@ -137,9 +193,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     () => ({
       language,
       preferredLanguage,
+      englishOnly,
+      showLanguageToggle: !englishOnly,
       needsLanguageOnboarding,
       setLanguage,
       setPreferredLanguage,
+      setEnglishOnly,
       completeLanguageOnboarding,
       t,
       toggleLanguage,
@@ -147,9 +206,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [
       language,
       preferredLanguage,
+      englishOnly,
       needsLanguageOnboarding,
       setLanguage,
       setPreferredLanguage,
+      setEnglishOnly,
       completeLanguageOnboarding,
       t,
       toggleLanguage,

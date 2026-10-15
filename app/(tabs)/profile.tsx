@@ -4,14 +4,21 @@ import { AppText } from '../../src/components/AppText';
 import { Screen } from '../../src/components/Screen';
 import { useLanguage } from '../../src/context/LanguageContext';
 import {
-  PREFERRED_LANGUAGE_LABEL_KEY,
+  LANGUAGE_DISPLAY_LABEL,
+  PREFERRED_LANGUAGE_DISPLAY_LABEL,
   PREFERRED_LANGUAGES,
 } from '../../src/i18n/languages';
 import { colors, radius, spacing } from '../../src/theme/colors';
 import { PreferredLanguage } from '../../src/types';
 
 export default function SettingsScreen() {
-  const { t, preferredLanguage, setPreferredLanguage } = useLanguage();
+  const {
+    t,
+    preferredLanguage,
+    englishOnly,
+    setPreferredLanguage,
+    setEnglishOnly,
+  } = useLanguage();
 
   const onSelectPreferred = async (lang: PreferredLanguage) => {
     await setPreferredLanguage(lang);
@@ -26,10 +33,20 @@ export default function SettingsScreen() {
           {t('language')}
         </AppText>
         <AppText muted style={{ marginBottom: spacing.md }}>
-          {t('languagePairHint')}
+          {englishOnly ? t('languageEnglishOnlyHint') : t('languagePairHint')}
         </AppText>
+
+        <Pressable
+          onPress={() => void setEnglishOnly()}
+          style={[styles.langChip, englishOnly && styles.langActive]}
+        >
+          <AppText color={englishOnly ? colors.white : colors.textSecondary}>
+            {LANGUAGE_DISPLAY_LABEL.en}
+          </AppText>
+        </Pressable>
+
         {PREFERRED_LANGUAGES.map((lang) => {
-          const active = preferredLanguage === lang;
+          const active = !englishOnly && preferredLanguage === lang;
           return (
             <Pressable
               key={lang}
@@ -37,7 +54,7 @@ export default function SettingsScreen() {
               style={[styles.langChip, active && styles.langActive]}
             >
               <AppText color={active ? colors.white : colors.textSecondary}>
-                {t(PREFERRED_LANGUAGE_LABEL_KEY[lang])}
+                {PREFERRED_LANGUAGE_DISPLAY_LABEL[lang]}
               </AppText>
             </Pressable>
           );

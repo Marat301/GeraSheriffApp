@@ -16,9 +16,7 @@ export const articles: ArticleItem[] = [
 4. You may remain silent beyond identifying yourself as required.
 5. Do not consent to a search of your vehicle or belongings.
 6. Ask clearly if you are free to leave.
-7. If arrested, ask for an attorney and stop answering questions.
-
-This is educational information, not legal advice.`,
+7. If arrested, ask for an attorney and stop answering questions.`,
     bodyRu: `При дорожной или уличной остановке во Флориде:
 
 1. Безопасно остановитесь и ночью включите свет в салоне.
@@ -27,9 +25,7 @@ This is educational information, not legal advice.`,
 4. Вы можете хранить молчание сверх обязательной идентификации.
 5. Не соглашайтесь на обыск авто или вещей.
 6. Чётко спросите, свободны ли вы идти.
-7. При аресте попросите адвоката и прекратите отвечать на вопросы.
-
-Это образовательная информация, а не юридическая консультация.`,
+7. При аресте попросите адвоката и прекратите отвечать на вопросы.`,
   },
   {
     id: 'a2',

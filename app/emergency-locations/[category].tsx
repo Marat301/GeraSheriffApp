@@ -1,15 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Keyboard,
   Linking,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
+  TextInput,
   View,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
@@ -28,7 +29,14 @@ import {
   NearbyPlace,
   toTelUrl,
 } from '../../src/services/nearbyPlaces';
+import {
+  geocodePlaceQuery,
+  readCachedCoords,
+  resolveUserLocation,
+} from '../../src/services/userLocation';
 import { colors, radius, spacing } from '../../src/theme/colors';
+
+type SearchMode = 'gps' | 'city';
 
 function buildMapHtml(
   latitude: number,
@@ -46,7 +54,7 @@ function buildMapHtml(
     name: p.name,
     selected: p.id === selectedId,
   }));
-  const userPopup = JSON.stringify(showUser ? youLabel : approxLabel);
+  const centerPopup = JSON.stringify(showUser ? youLabel : approxLabel);
 
   return `<!DOCTYPE html>
 <html>
@@ -65,6 +73,7 @@ function buildMapHtml(
   <div id="map"></div>
   <script>
     const places = ${JSON.stringify(markers)};
+    const showUser = ${showUser ? 'true' : 'false'};
     const map = L.map('map', { zoomControl: true }).setView([${latitude}, ${longitude}], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -80,6 +89,15 @@ function buildMapHtml(
         + '</svg></div>';
     }
 
+    function searchCenterIconHtml() {
+      return '<div style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;">'
+        + '<svg width="34" height="34" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">'
+        + '<circle cx="17" cy="17" r="15" fill="#1E5EFF" stroke="#90CAF9" stroke-width="2"/>'
+        + '<circle cx="17" cy="17" r="5" fill="#E3F2FD"/>'
+        + '<circle cx="17" cy="17" r="10" fill="none" stroke="#E3F2FD" stroke-width="2" stroke-dasharray="3 3"/>'
+        + '</svg></div>';
+    }
+
     function pinIconHtml(color) {
       return '<div style="position:relative;width:28px;height:42px;">'
         + '<svg width="28" height="42" viewBox="0 0 28 42" xmlns="http://www.w3.org/2000/svg">'
@@ -89,16 +107,16 @@ function buildMapHtml(
         + '</svg></div>';
     }
 
-    const youIcon = L.divIcon({
+    const centerIcon = L.divIcon({
       className: '',
-      html: userIconHtml(),
+      html: showUser ? userIconHtml() : searchCenterIconHtml(),
       iconSize: [36, 36],
       iconAnchor: [18, 18],
     });
 
-    L.marker([${latitude}, ${longitude}], { icon: youIcon, zIndexOffset: 1000 })
+    L.marker([${latitude}, ${longitude}], { icon: centerIcon, zIndexOffset: 1000 })
       .addTo(map)
-      .bindPopup(${userPopup});
+      .bindPopup(${centerPopup});
 
     const bounds = L.latLngBounds([[${latitude}, ${longitude}]]);
     const placeMarkers = {};
@@ -163,12 +181,33 @@ export default function EmergencyLocationCategoryScreen() {
     longitude: FALLBACK_COORDS.longitude,
   });
   const [usingFallback, setUsingFallback] = useState(false);
+  const [searchMode, setSearchMode] = useState<SearchMode>('gps');
+  const [cityQuery, setCityQuery] = useState('');
+  const [cityLabel, setCityLabel] = useState<string | null>(null);
   const [places, setPlaces] = useState<NearbyPlace[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  /** Don't show the map until the first search finishes (avoids Orlando flash) */
+  const [mapReady, setMapReady] = useState(false);
   const [mapEpoch, setMapEpoch] = useState(0);
   const loadGenRef = useRef(0);
+  const cityQueryRef = useRef('');
+  cityQueryRef.current = cityQuery;
+
+  // Warm start from last GPS so we never briefly show Orlando if we've been there before
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const cached = await readCachedCoords();
+      if (!cancelled && cached) {
+        setCoords(cached);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const title = category
     ? `${category.emoji} ${language === 'ru' ? category.nameRu : category.nameEn}`
@@ -187,57 +226,112 @@ export default function EmergencyLocationCategoryScreen() {
 
   const closestId = places[0]?.id ?? null;
 
-  const load = useCallback(async () => {
+  const runPlacesSearch = useCallback(
+    async (
+      gen: number,
+      latitude: number,
+      longitude: number,
+      mode: SearchMode,
+      label: string | null,
+      fallback: boolean
+    ) => {
+      setCoords({ latitude, longitude });
+      setSearchMode(mode);
+      setCityLabel(label);
+      setUsingFallback(fallback);
+
+      try {
+        const results = await fetchNearbyPlaces(category!, latitude, longitude);
+        if (gen !== loadGenRef.current) return;
+        setPlaces(results);
+        if (results[0]) setSelectedId(results[0].id);
+        else setSelectedId(null);
+        setMapEpoch((n) => n + 1);
+        setMapReady(true);
+      } catch {
+        if (gen !== loadGenRef.current) return;
+        setPlaces([]);
+        setSelectedId(null);
+        setError(errorMessageRef.current);
+        setMapEpoch((n) => n + 1);
+        setMapReady(true);
+      } finally {
+        if (gen === loadGenRef.current) setLoading(false);
+      }
+    },
+    [category]
+  );
+
+  const loadGps = useCallback(async () => {
     if (!category) return;
     const gen = ++loadGenRef.current;
     setLoading(true);
     setError(null);
+    setCityLabel(null);
 
-    let latitude = FALLBACK_COORDS.latitude;
-    let longitude = FALLBACK_COORDS.longitude;
-    let fallback = true;
-
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const position = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
-        fallback = false;
-      }
-    } catch {
-      fallback = true;
-    }
-
+    const { coords: resolved, usingFallback: fallback } = await resolveUserLocation();
     if (gen !== loadGenRef.current) return;
 
-    setCoords({ latitude, longitude });
-    setUsingFallback(fallback);
+    await runPlacesSearch(
+      gen,
+      resolved.latitude,
+      resolved.longitude,
+      'gps',
+      null,
+      fallback
+    );
+  }, [category, runPlacesSearch]);
 
-    try {
-      const results = await fetchNearbyPlaces(category, latitude, longitude);
+  const loadCity = useCallback(
+    async (rawQuery?: string) => {
+      if (!category) return;
+      const query = (rawQuery ?? cityQueryRef.current).trim();
+      if (!query) {
+        Alert.alert(t('emergencyLocations'), t('locationsSearchPlaceholder'));
+        return;
+      }
+
+      Keyboard.dismiss();
+      const gen = ++loadGenRef.current;
+      setLoading(true);
+      setError(null);
+
+      const geocoded = await geocodePlaceQuery(query);
       if (gen !== loadGenRef.current) return;
-      setPlaces(results);
-      if (results[0]) setSelectedId(results[0].id);
-      else setSelectedId(null);
-      setMapEpoch((n) => n + 1);
-    } catch {
-      if (gen !== loadGenRef.current) return;
-      setPlaces([]);
-      setSelectedId(null);
-      setError(errorMessageRef.current);
-      setMapEpoch((n) => n + 1);
-    } finally {
-      if (gen === loadGenRef.current) setLoading(false);
+
+      if (!geocoded) {
+        setLoading(false);
+        setError(t('locationsCityNotFound'));
+        setPlaces([]);
+        setSelectedId(null);
+        setMapReady(true);
+        return;
+      }
+
+      await runPlacesSearch(
+        gen,
+        geocoded.coords.latitude,
+        geocoded.coords.longitude,
+        'city',
+        geocoded.label,
+        false
+      );
+    },
+    [category, runPlacesSearch, t]
+  );
+
+  const refresh = useCallback(() => {
+    if (searchMode === 'city' && cityQueryRef.current.trim()) {
+      void loadCity();
+    } else {
+      void loadGps();
     }
-  }, [category]);
+  }, [loadCity, loadGps, searchMode]);
 
   // Only refetch when the category changes — not when language toggles
   useEffect(() => {
-    load();
-  }, [load]);
+    void loadGps();
+  }, [loadGps]);
 
   const openDirections = (place: NearbyPlace) => {
     const label = encodeURIComponent(place.name);
@@ -281,9 +375,9 @@ export default function EmergencyLocationCategoryScreen() {
         coords.longitude,
         places,
         selectedId,
-        !usingFallback,
+        searchMode === 'gps' && !usingFallback,
         t('locationsMapYou'),
-        t('locationsMapApprox')
+        cityLabel || t('locationsMapApprox')
       ),
     // Remount map only when search results / position change (mapEpoch), not on language
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -316,62 +410,100 @@ export default function EmergencyLocationCategoryScreen() {
         <LanguageToggle />
       </View>
 
-      <WebView
-        key={mapEpoch}
-        ref={webRef}
-        originWhitelist={['*']}
-        source={{ html: mapHtml }}
-        style={styles.map}
-        javaScriptEnabled
-        domStorageEnabled
-        onMessage={(event) => {
-          try {
-            const data = JSON.parse(event.nativeEvent.data) as {
-              type?: string;
-              id?: string;
-            };
-            if (data.type === 'select' && data.id) {
-              setSelectedId(data.id);
-              webRef.current?.injectJavaScript(`
-                (function() {
-                  if (typeof window.setSelectedPlace === 'function') {
-                    window.setSelectedPlace(${JSON.stringify(data.id)});
-                  }
-                  true;
-                })();
-              `);
+      {mapReady ? (
+        <WebView
+          key={mapEpoch}
+          ref={webRef}
+          originWhitelist={['*']}
+          source={{ html: mapHtml }}
+          style={styles.map}
+          javaScriptEnabled
+          domStorageEnabled
+          onMessage={(event) => {
+            try {
+              const data = JSON.parse(event.nativeEvent.data) as {
+                type?: string;
+                id?: string;
+              };
+              if (data.type === 'select' && data.id) {
+                setSelectedId(data.id);
+                webRef.current?.injectJavaScript(`
+                  (function() {
+                    if (typeof window.setSelectedPlace === 'function') {
+                      window.setSelectedPlace(${JSON.stringify(data.id)});
+                    }
+                    true;
+                  })();
+                `);
+              }
+            } catch {
+              // ignore
             }
-          } catch {
-            // ignore
-          }
-        }}
-      />
+          }}
+        />
+      ) : (
+        <View style={[styles.map, styles.mapPlaceholder]}>
+          <ActivityIndicator color={colors.blueBright} size="large" />
+          <AppText muted style={{ marginTop: spacing.md }}>
+            {t('locationsLoading')}
+          </AppText>
+        </View>
+      )}
 
       <View style={styles.panel}>
-        {usingFallback && (
+        {searchMode === 'city' && cityLabel ? (
+          <AppText variant="caption" color={colors.blueBright} style={styles.banner}>
+            {t('locationsUsingCity')} {cityLabel}
+          </AppText>
+        ) : usingFallback ? (
           <AppText variant="caption" color={colors.blueBright} style={styles.banner}>
             {t('locationsUsingFallback')}
           </AppText>
-        )}
+        ) : null}
 
         <View style={styles.panelHeader}>
           <AppText variant="subtitle" style={{ flex: 1 }}>
             {title}
           </AppText>
-          <Pressable onPress={load} hitSlop={8} style={styles.refreshBtn}>
+          <Pressable onPress={refresh} hitSlop={8} style={styles.refreshBtn}>
             <Ionicons name="refresh" size={18} color={colors.blueBright} />
           </Pressable>
         </View>
 
-        <Pressable
-          onPress={() => Linking.openURL('tel:911')}
-          style={({ pressed }) => [styles.urgent911, pressed && { opacity: 0.9 }]}
-        >
-          <Ionicons name="warning" size={18} color={colors.white} />
-          <AppText color={colors.white} style={styles.urgentText}>
-            {t('locationsUrgent911')}
-          </AppText>
-        </Pressable>
+        <View style={styles.searchRow}>
+          <TextInput
+            value={cityQuery}
+            onChangeText={setCityQuery}
+            placeholder={t('locationsSearchPlaceholder')}
+            placeholderTextColor={colors.textMuted}
+            style={styles.searchInput}
+            returnKeyType="search"
+            onSubmitEditing={() => void loadCity()}
+            autoCapitalize="words"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+          <Pressable
+            onPress={() => void loadCity()}
+            style={({ pressed }) => [styles.searchBtn, pressed && { opacity: 0.85 }]}
+            accessibilityRole="button"
+            accessibilityLabel={t('locationsSearch')}
+          >
+            <Ionicons name="search" size={18} color={colors.white} />
+          </Pressable>
+        </View>
+        {searchMode === 'city' ? (
+          <Pressable
+            onPress={() => void loadGps()}
+            style={styles.myLocationBtn}
+            hitSlop={6}
+          >
+            <Ionicons name="navigate" size={14} color={colors.blueBright} />
+            <AppText variant="caption" color={colors.blueBright}>
+              {t('locationsUseMyLocation')}
+            </AppText>
+          </Pressable>
+        ) : null}
 
         {hotline && (
           <Pressable
@@ -395,7 +527,7 @@ export default function EmergencyLocationCategoryScreen() {
         ) : error ? (
           <View style={styles.centeredPanel}>
             <AppText muted>{error}</AppText>
-            <Pressable onPress={load} style={styles.retry}>
+            <Pressable onPress={refresh} style={styles.retry}>
               <AppText color={colors.blueBright}>{t('locationsRetry')}</AppText>
             </Pressable>
           </View>
@@ -483,6 +615,10 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: colors.blackSoft,
   },
+  mapPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   panel: {
     flex: 1,
     backgroundColor: colors.blackSoft,
@@ -503,6 +639,39 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+    minHeight: 42,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    color: colors.textPrimary,
+    paddingHorizontal: spacing.md,
+    fontSize: 15,
+  },
+  searchBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: radius.md,
+    backgroundColor: colors.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  myLocationBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
   refreshBtn: {
     padding: spacing.xs,
@@ -564,20 +733,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blue,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  urgent911: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-    backgroundColor: colors.danger,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-  },
-  urgentText: {
-    flex: 1,
-    fontWeight: '700',
   },
   centered: {
     flex: 1,

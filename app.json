@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Gera Sheriff",
-    "slug": "gera-sheriff-app",
+    "slug": "gerasheriff",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,8 +10,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gerasheriff.app",
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Gera Sheriff uses your location to find nearby emergency services such as hospitals, police, and shelters."
+        "NSLocationWhenInUseUsageDescription": "Gera Sheriff uses your location to find nearby emergency services such as hospitals, police, and shelters.",
+        "NSMicrophoneUsageDescription": "Gera Sheriff uses the microphone so you can dictate phrases in the Translator.",
+        "NSSpeechRecognitionUsageDescription": "Gera Sheriff uses speech recognition to turn your voice into text in the Translator."
       }
     },
     "android": {
@@ -25,7 +31,13 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ]
     },
     "web": {
@@ -53,10 +65,24 @@
         }
       ],
       "expo-audio",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow Gera Sheriff to use the microphone so you can dictate phrases in the Translator.",
+          "speechRecognitionPermission": "Allow Gera Sheriff to use speech recognition to turn your voice into text in the Translator."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a0764c7b-26ab-4f02-9fbc-1346730cee73"
+      }
+    },
+    "owner": "marat301"
   }
 }

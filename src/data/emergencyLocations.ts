@@ -1,6 +1,6 @@
 export type LocationCategoryId =
   | 'hospitals'
-  | 'urgentCare'
+  | 'clinics'
   | 'pharmacies'
   | 'police'
   | 'sheriff'
@@ -52,10 +52,10 @@ export const locationCategories: LocationCategory[] = [
     ],
   },
   {
-    id: 'urgentCare',
+    id: 'clinics',
     emoji: '🩺',
-    nameEn: 'Urgent Care',
-    nameRu: 'Срочные клиники',
+    nameEn: 'Clinics',
+    nameRu: 'Клиники',
     overpassFilters: [
       'node["amenity"="clinic"]',
       'way["amenity"="clinic"]',

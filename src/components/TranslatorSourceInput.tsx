@@ -50,6 +50,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     paddingHorizontal: spacing.md,
     paddingTop: 12,
-    paddingBottom: 12,
+    // Extra right/bottom space so text stays clear of the dictate mic button
+    paddingRight: 56,
+    paddingBottom: 56,
   },
 });

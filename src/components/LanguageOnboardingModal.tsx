@@ -2,17 +2,15 @@ import React from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../context/LanguageContext';
+import { LANGUAGE_DISPLAY_LABEL } from '../i18n/languages';
 import { colors, radius, spacing } from '../theme/colors';
-import { PreferredLanguage } from '../types';
+import { Language } from '../types';
 import { AppText } from './AppText';
 
-/** Native labels so each speaker recognizes their language on first launch */
-const OPTIONS: { id: PreferredLanguage; label: string }[] = [
-  { id: 'ru', label: 'Русский' },
-  { id: 'es', label: 'Español' },
-  { id: 'pt', label: 'Português' },
-  { id: 'ht', label: 'Kreyòl ayisyen' },
-];
+/** Native name first, English in parentheses */
+const OPTIONS: { id: Language; label: string }[] = (
+  ['en', 'ru', 'es', 'pt', 'ht'] as Language[]
+).map((id) => ({ id, label: LANGUAGE_DISPLAY_LABEL[id] }));
 
 export function LanguageOnboardingModal() {
   const { needsLanguageOnboarding, completeLanguageOnboarding, t } = useLanguage();
