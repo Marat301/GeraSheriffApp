@@ -7,7 +7,6 @@ import {
   Pressable,
   StyleSheet,
   View,
-  ViewToken,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../context/LanguageContext';
@@ -27,7 +26,6 @@ const SLIDES: Slide[] = [
   { icon: 'library', titleKey: 'catalogue', bodyKey: 'tutorialLibraryBody' },
   { icon: 'warning', titleKey: 'emergency', bodyKey: 'tutorialEmergencyBody' },
   { icon: 'chatbubbles', titleKey: 'policeCards', bodyKey: 'tutorialPoliceBody' },
-  { icon: 'newspaper', titleKey: 'articles', bodyKey: 'tutorialArticlesBody' },
   { icon: 'book', titleKey: 'glossary', bodyKey: 'tutorialGlossaryBody' },
   { icon: 'scale', titleKey: 'lawLibrary', bodyKey: 'tutorialLawLibraryBody' },
   { icon: 'git-commit', titleKey: 'caseRoadmap', bodyKey: 'tutorialCaseRoadmapBody' },
@@ -48,9 +46,12 @@ export function TutorialModal({ visible, onClose }: Props) {
   );
   const listRef = useRef<FlatList<Slide>>(null);
 
-  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    if (viewableItems[0]?.index != null) setIndex(viewableItems[0].index);
-  }).current;
+  const onViewableItemsChanged = useRef(
+    (info: { viewableItems: Array<{ index?: number | null }> }) => {
+      const idx = info.viewableItems[0]?.index;
+      if (typeof idx === 'number') setIndex(idx);
+    }
+  ).current;
 
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 60 }).current;
 
@@ -91,7 +92,7 @@ export function TutorialModal({ visible, onClose }: Props) {
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
-            onViewableItemsChanged={onViewableItemsChanged}
+            onViewableItemsChanged={onViewableItemsChanged as never}
             viewabilityConfig={viewabilityConfig}
             extraData={pageWidth}
             onLayout={(e) => {

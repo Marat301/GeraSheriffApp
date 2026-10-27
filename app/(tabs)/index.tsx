@@ -98,11 +98,6 @@ export default function HomeScreen() {
           icon="book"
           onPress={() => router.push('/glossary')}
         />
-        <CategoryButton
-          title={t('articles')}
-          icon="newspaper"
-          onPress={() => router.push('/articles')}
-        />
       </View>
 
       <AppText variant="caption" style={styles.disclaimer}>

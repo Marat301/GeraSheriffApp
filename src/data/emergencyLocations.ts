@@ -1,30 +1,54 @@
 export type LocationCategoryId =
   | 'hospitals'
-  | 'clinics'
-  | 'pharmacies'
+  | 'poisonControl'
+  | 'fireStations'
   | 'police'
   | 'sheriff'
-  | 'fireStations'
-  | 'courthouses'
-  | 'clerkOfCourts'
+  | 'domesticViolence'
+  | 'shelters'
+  | 'fema'
+  | 'clinics'
+  | 'pharmacies'
   | 'childCare'
   | 'legalAid'
-  | 'shelters'
-  | 'domesticViolence'
-  | 'dmv'
+  | 'courthouses'
+  | 'clerkOfCourts'
   | 'immigration'
   | 'embassies'
-  | 'fema'
-  | 'libraries'
-  | 'poisonControl';
+  | 'dmv'
+  | 'libraries';
+
+export type CuratedPlace = {
+  name: string;
+  latitude: number;
+  longitude: number;
+  address?: string;
+  phone?: string;
+};
+
+/**
+ * Nominatim search config (OpenStreetMap, no API key).
+ * Prefer a single `amenity` special-phrase when possible — one request per open.
+ */
+export type LocationSearch = {
+  /** Nominatim amenity= special phrase (hospital, police, …) */
+  amenity?: string;
+  /** Free-text q= fallback(s); used when amenity is missing or returns too few hits */
+  queries?: string[];
+  /** Optional substrings the place name should contain (any match keeps it) */
+  nameIncludes?: string[];
+  /** Drop if name contains any of these */
+  nameExcludes?: string[];
+};
 
 export type LocationCategory = {
   id: LocationCategoryId;
   emoji: string;
   nameEn: string;
   nameRu: string;
-  /** Overpass QL filters inside an (around:...) block — without the around itself */
-  overpassFilters: string[];
+  search: LocationSearch;
+  /** Seeded POIs when OSM is sparse — always merged by distance */
+  curated?: CuratedPlace[];
 };
 
 /** Central Florida fallback when location permission is denied */
@@ -38,67 +62,47 @@ export const FALLBACK_COORDS = {
 export const SEARCH_RADIUS_METERS = 20000;
 export const MAX_RESULTS = 25;
 
+/** Ordered by urgency — most emergency-critical categories first */
 export const locationCategories: LocationCategory[] = [
   {
     id: 'hospitals',
     emoji: '🏥',
     nameEn: 'Hospitals',
     nameRu: 'Больницы',
-    overpassFilters: [
-      'node["amenity"="hospital"]',
-      'way["amenity"="hospital"]',
-      'node["healthcare"="hospital"]',
-      'way["healthcare"="hospital"]',
-    ],
+    search: { amenity: 'hospital' },
   },
   {
-    id: 'clinics',
-    emoji: '🩺',
-    nameEn: 'Clinics',
-    nameRu: 'Клиники',
-    overpassFilters: [
-      'node["amenity"="clinic"]',
-      'way["amenity"="clinic"]',
-      'node["healthcare"="clinic"]',
-      'way["healthcare"="clinic"]',
-      'node["healthcare"="urgent_care"]',
-      'way["healthcare"="urgent_care"]',
-    ],
-  },
-  {
-    id: 'pharmacies',
-    emoji: '💊',
-    nameEn: 'Pharmacies',
-    nameRu: 'Аптеки',
-    overpassFilters: [
-      'node["amenity"="pharmacy"]',
-      'way["amenity"="pharmacy"]',
-      'node["healthcare"="pharmacy"]',
-      'way["healthcare"="pharmacy"]',
-    ],
-  },
-  {
-    id: 'police',
-    emoji: '👮',
-    nameEn: 'Police',
-    nameRu: 'Полиция',
-    overpassFilters: [
-      'node["amenity"="police"]',
-      'way["amenity"="police"]',
-    ],
-  },
-  {
-    id: 'sheriff',
-    emoji: '⭐',
-    nameEn: "Sheriff's Offices",
-    nameRu: 'Офисы шерифа',
-    overpassFilters: [
-      'node["amenity"="police"]["name"~"[Ss]heriff"]',
-      'way["amenity"="police"]["name"~"[Ss]heriff"]',
-      'node["office"="government"]["name"~"[Ss]heriff"]',
-      'way["office"="government"]["name"~"[Ss]heriff"]',
-      'node["name"~"[Ss]heriff.?s? [Oo]ffice"]',
-      'way["name"~"[Ss]heriff.?s? [Oo]ffice"]',
+    id: 'poisonControl',
+    emoji: '☠️',
+    nameEn: 'Poison Control',
+    nameRu: 'Токсикологическая помощь',
+    search: {
+      queries: ['poison control center', 'poison information center'],
+      nameIncludes: ['poison'],
+      nameExcludes: ['pest', 'termite', 'tower'],
+    },
+    curated: [
+      {
+        name: 'Florida Poison Information Center – Miami',
+        latitude: 25.7916,
+        longitude: -80.2105,
+        address: '1611 NW 12th Ave, Miami, FL 33136',
+        phone: '1-800-222-1222',
+      },
+      {
+        name: 'Florida Poison Information Center – Jacksonville',
+        latitude: 30.3487,
+        longitude: -81.6632,
+        address: '655 W 8th St, Jacksonville, FL 32209',
+        phone: '1-800-222-1222',
+      },
+      {
+        name: 'Florida Poison Information Center – Tampa',
+        latitude: 28.0547,
+        longitude: -82.4214,
+        address: '2 Tampa General Circle, Tampa, FL 33606',
+        phone: '1-800-222-1222',
+      },
     ],
   },
   {
@@ -106,61 +110,57 @@ export const locationCategories: LocationCategory[] = [
     emoji: '🚒',
     nameEn: 'Fire Stations',
     nameRu: 'Пожарные станции',
-    overpassFilters: [
-      'node["amenity"="fire_station"]',
-      'way["amenity"="fire_station"]',
-    ],
+    search: { amenity: 'fire_station' },
   },
   {
-    id: 'courthouses',
-    emoji: '⚖️',
-    nameEn: 'Courthouses',
-    nameRu: 'Суды',
-    overpassFilters: [
-      'node["amenity"="courthouse"]',
-      'way["amenity"="courthouse"]',
-    ],
+    id: 'police',
+    emoji: '👮',
+    nameEn: 'Police',
+    nameRu: 'Полиция',
+    search: { amenity: 'police' },
   },
   {
-    id: 'clerkOfCourts',
-    emoji: '📋',
-    nameEn: 'Clerk of Courts',
-    nameRu: 'Clerk of Courts (суд. канцелярия)',
-    overpassFilters: [
-      'node["office"="government"]["name"~"[Cc]lerk"]',
-      'way["office"="government"]["name"~"[Cc]lerk"]',
-      'node["name"~"[Cc]lerk of [Cc]ourt"]',
-      'way["name"~"[Cc]lerk of [Cc]ourt"]',
-      'node["amenity"="courthouse"]',
-      'way["amenity"="courthouse"]',
-    ],
+    id: 'sheriff',
+    emoji: '⭐',
+    nameEn: "Sheriff's Offices",
+    nameRu: 'Офисы шерифа',
+    search: {
+      queries: ['sheriff office', 'sheriff department'],
+      nameIncludes: ['sheriff'],
+    },
   },
   {
-    id: 'childCare',
-    emoji: '👶',
-    nameEn: 'Child Care',
-    nameRu: 'Уход за детьми',
-    overpassFilters: [
-      'node["amenity"="childcare"]',
-      'way["amenity"="childcare"]',
-      'node["amenity"="kindergarten"]',
-      'way["amenity"="kindergarten"]',
-      'node["amenity"="nursery"]',
-      'way["amenity"="nursery"]',
-    ],
-  },
-  {
-    id: 'legalAid',
-    emoji: '🛡️',
-    nameEn: 'Legal Aid',
-    nameRu: 'Бесплатная юрпомощь',
-    overpassFilters: [
-      'node["office"="lawyer"]["name"~"[Ll]egal [Aa]id"]',
-      'way["office"="lawyer"]["name"~"[Ll]egal [Aa]id"]',
-      'node["name"~"[Ll]egal [Aa]id"]',
-      'way["name"~"[Ll]egal [Aa]id"]',
-      'node["office"="ngo"]["name"~"[Ll]egal"]',
-      'way["office"="ngo"]["name"~"[Ll]egal"]',
+    id: 'domesticViolence',
+    emoji: '💜',
+    nameEn: 'Domestic Violence Resources',
+    nameRu: 'Помощь при домашнем насилии',
+    search: {
+      queries: ['domestic violence shelter', 'women in distress'],
+      nameIncludes: ['domestic violence', 'women in distress', 'victim', 'abuse'],
+      nameExcludes: ['kids in distress', 'detention'],
+    },
+    curated: [
+      {
+        name: 'Women in Distress of Broward County (crisis line)',
+        latitude: 26.15088,
+        longitude: -80.21238,
+        address: 'Plantation / Broward County, FL',
+        phone: '954-761-1133',
+      },
+      {
+        name: 'The Lodge / Victim Response (Miami-Dade)',
+        latitude: 25.7617,
+        longitude: -80.1918,
+        address: 'Miami-Dade County, FL',
+        phone: '305-693-0300',
+      },
+      {
+        name: 'Florida Domestic Violence Hotline',
+        latitude: 26.1224,
+        longitude: -80.1434,
+        address: 'Statewide hotline',
+        phone: '1-800-500-1119',
+      },
     ],
   },
   {
@@ -168,77 +168,26 @@ export const locationCategories: LocationCategory[] = [
     emoji: '🏠',
     nameEn: 'Shelters',
     nameRu: 'Приюты',
-    overpassFilters: [
-      'node["amenity"="shelter"]',
-      'way["amenity"="shelter"]',
-      'node["social_facility"="shelter"]',
-      'way["social_facility"="shelter"]',
-      'node["social_facility"="homeless_shelter"]',
-      'way["social_facility"="homeless_shelter"]',
-    ],
-  },
-  {
-    id: 'domesticViolence',
-    emoji: '💜',
-    nameEn: 'Domestic Violence Resources',
-    nameRu: 'Помощь при домашнем насилии',
-    overpassFilters: [
-      'node["social_facility"="shelter"]["social_facility:for"="domestic_violence"]',
-      'way["social_facility"="shelter"]["social_facility:for"="domestic_violence"]',
-      'node["name"~"[Dd]omestic [Vv]iolence"]',
-      'way["name"~"[Dd]omestic [Vv]iolence"]',
-      'node["name"~"[Cc]risis [Cc]enter"]',
-      'way["name"~"[Cc]risis [Cc]enter"]',
-      'node["social_facility"="crisis_centre"]',
-      'way["social_facility"="crisis_centre"]',
-    ],
-  },
-  {
-    id: 'dmv',
-    emoji: '🚗',
-    nameEn: 'DMV / Driver License',
-    nameRu: 'DMV / Водительские права',
-    overpassFilters: [
-      'node["name"~"\\bDMV\\b"]',
-      'way["name"~"\\bDMV\\b"]',
-      'node["name"~"[Dd]river.?s? [Ll]icense"]',
-      'way["name"~"[Dd]river.?s? [Ll]icense"]',
-      'node["name"~"[Hh]ighway [Ss]afety"]',
-      'way["name"~"[Hh]ighway [Ss]afety"]',
-      'node["government"="transportation"]',
-      'way["government"="transportation"]',
-    ],
-  },
-  {
-    id: 'immigration',
-    emoji: '🛂',
-    nameEn: 'Immigration / USCIS',
-    nameRu: 'Иммиграция / USCIS',
-    overpassFilters: [
-      'node["office"="immigration"]',
-      'way["office"="immigration"]',
-      'node["name"~"USCIS"]',
-      'way["name"~"USCIS"]',
-      'node["name"~"[Ii]mmigration"]',
-      'way["name"~"[Ii]mmigration"]',
-      'node["government"="immigration"]',
-      'way["government"="immigration"]',
-    ],
-  },
-  {
-    id: 'embassies',
-    emoji: '🏛️',
-    nameEn: 'Consulates & Embassies',
-    nameRu: 'Консульства и посольства',
-    overpassFilters: [
-      'node["amenity"="embassy"]',
-      'way["amenity"="embassy"]',
-      'node["office"="diplomatic"]',
-      'way["office"="diplomatic"]',
-      'node["amenity"="consulate"]',
-      'way["amenity"="consulate"]',
-      'node["name"~"[Cc]onsulat"]',
-      'way["name"~"[Cc]onsulat"]',
+    search: {
+      queries: ['homeless shelter', 'Salvation Army'],
+      nameIncludes: ['homeless', 'salvation army', 'rescue mission', 'chapman'],
+      nameExcludes: ['bus', 'picnic', 'animal', 'restaurant', 'store', 'day care'],
+    },
+    curated: [
+      {
+        name: 'The Salvation Army Fort Lauderdale Corps',
+        latitude: 26.1224,
+        longitude: -80.1434,
+        address: 'Fort Lauderdale, FL',
+        phone: '954-524-6991',
+      },
+      {
+        name: 'Chapman Partnership for the Homeless',
+        latitude: 25.7907,
+        longitude: -80.1957,
+        address: '1550 N Miami Ave, Miami, FL 33136',
+        phone: '305-329-3000',
+      },
     ],
   },
   {
@@ -246,36 +195,155 @@ export const locationCategories: LocationCategory[] = [
     emoji: '🆘',
     nameEn: 'FEMA / Emergency Mgmt',
     nameRu: 'FEMA / ЧС управление',
-    overpassFilters: [
-      'node["name"~"\\bFEMA\\b"]',
-      'way["name"~"\\bFEMA\\b"]',
-      'node["name"~"[Ee]mergency [Mm]anagement"]',
-      'way["name"~"[Ee]mergency [Mm]anagement"]',
-      'node["office"="government"]["name"~"[Ee]mergency"]',
-      'way["office"="government"]["name"~"[Ee]mergency"]',
+    search: {
+      queries: ['emergency management', 'FEMA'],
+      nameIncludes: ['emergency management', 'fema', 'disaster'],
+    },
+    curated: [
+      {
+        name: 'Broward County Emergency Management Division',
+        latitude: 26.1224,
+        longitude: -80.1434,
+        address: '201 NW 84th Ave, Plantation, FL 33324',
+        phone: '954-831-3900',
+      },
     ],
+  },
+  {
+    id: 'clinics',
+    emoji: '🩺',
+    nameEn: 'Clinics',
+    nameRu: 'Клиники',
+    search: { amenity: 'clinic' },
+  },
+  {
+    id: 'pharmacies',
+    emoji: '💊',
+    nameEn: 'Pharmacies',
+    nameRu: 'Аптеки',
+    search: { amenity: 'pharmacy' },
+  },
+  {
+    id: 'childCare',
+    emoji: '👶',
+    nameEn: 'Child Care',
+    nameRu: 'Уход за детьми',
+    search: {
+      amenity: 'kindergarten',
+      queries: ['childcare', 'daycare'],
+    },
+  },
+  {
+    id: 'legalAid',
+    emoji: '🛡️',
+    nameEn: 'Legal Aid',
+    nameRu: 'Бесплатная юрпомощь',
+    search: {
+      queries: ['legal aid'],
+      nameIncludes: ['legal aid', 'legal services', 'pro bono'],
+    },
+    curated: [
+      {
+        name: 'Legal Aid Service of Broward County',
+        latitude: 26.12756,
+        longitude: -80.2038,
+        address: '491 N State Road 7, Plantation, FL 33317',
+        phone: '954-765-8950',
+      },
+      {
+        name: 'Coast to Coast Legal Aid of South Florida',
+        latitude: 26.1224,
+        longitude: -80.1434,
+        address: 'Fort Lauderdale, FL',
+        phone: '954-736-2400',
+      },
+      {
+        name: 'Legal Services of Greater Miami',
+        latitude: 25.7753,
+        longitude: -80.2089,
+        address: '4343 W Flagler St, Miami, FL 33134',
+        phone: '305-576-0080',
+      },
+    ],
+  },
+  {
+    id: 'courthouses',
+    emoji: '⚖️',
+    nameEn: 'Courthouses',
+    nameRu: 'Суды',
+    search: { amenity: 'courthouse' },
+  },
+  {
+    id: 'clerkOfCourts',
+    emoji: '📋',
+    nameEn: 'Clerk of Courts',
+    nameRu: 'Clerk of Courts (суд. канцелярия)',
+    search: {
+      queries: ['clerk of court', 'clerk of courts'],
+      nameIncludes: ['clerk'],
+    },
+    curated: [
+      {
+        name: 'Broward County Clerk of Courts',
+        latitude: 26.1205,
+        longitude: -80.1436,
+        address: '201 SE 6th St, Fort Lauderdale, FL 33301',
+        phone: '954-831-6565',
+      },
+    ],
+  },
+  {
+    id: 'immigration',
+    emoji: '🛂',
+    nameEn: 'Immigration / USCIS',
+    nameRu: 'Иммиграция / USCIS',
+    search: {
+      queries: ['USCIS', 'US Citizenship and Immigration Services'],
+      nameIncludes: ['uscis', 'immigration', 'citizenship'],
+    },
+    curated: [
+      {
+        name: 'USCIS Miami Field Office',
+        latitude: 25.9257,
+        longitude: -80.3095,
+        address: '16755 NW 67th Ave, Miami Lakes, FL 33014',
+      },
+      {
+        name: 'USCIS Application Support Center – North Miami',
+        latitude: 25.8901,
+        longitude: -80.1867,
+        address: 'North Miami, FL',
+      },
+    ],
+  },
+  {
+    id: 'embassies',
+    emoji: '🏛️',
+    nameEn: 'Consulates & Embassies',
+    nameRu: 'Консульства и посольства',
+    search: {
+      queries: ['consulate', 'embassy'],
+      nameIncludes: ['consulate', 'embassy'],
+      nameExcludes: ['boulevard', 'drive', 'street', 'road', 'ave'],
+    },
+  },
+  {
+    id: 'dmv',
+    emoji: '🚗',
+    nameEn: 'DMV / Driver License',
+    nameRu: 'DMV / Водительские права',
+    search: {
+      queries: ['FLHSMV', 'driver license', 'DMV'],
+      nameIncludes: ['flhsmv', 'driver license', 'dmv', 'motor vehicle', 'highway safety'],
+      nameExcludes: ['school', 'fleet'],
+    },
   },
   {
     id: 'libraries',
     emoji: '📚',
     nameEn: 'Public Libraries',
     nameRu: 'Публичные библиотеки',
-    overpassFilters: [
-      'node["amenity"="library"]',
-      'way["amenity"="library"]',
-    ],
-  },
-  {
-    id: 'poisonControl',
-    emoji: '☠️',
-    nameEn: 'Poison Control',
-    nameRu: 'Токсикологическая помощь',
-    overpassFilters: [
-      'node["name"~"[Pp]oison"]',
-      'way["name"~"[Pp]oison"]',
-      'node["healthcare"="poison_control"]',
-      'way["healthcare"="poison_control"]',
-    ],
+    search: { amenity: 'library' },
   },
 ];
 

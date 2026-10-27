@@ -15,20 +15,23 @@ export type NearbyPlace = {
   phone?: string;
 };
 
-type OverpassElement = {
-  type: string;
-  id: number;
-  lat?: number;
-  lon?: number;
-  center?: { lat: number; lon: number };
-  tags?: Record<string, string>;
+type NominatimResult = {
+  place_id?: number;
+  osm_type?: string;
+  osm_id?: number;
+  lat: string;
+  lon: string;
+  name?: string;
+  display_name?: string;
+  type?: string;
+  class?: string;
 };
 
-const OVERPASS_ENDPOINTS = [
-  'https://overpass-api.de/api/interpreter',
-  'https://lz4.overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter',
-];
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
+const USER_AGENT = 'GeraSheriffApp/1.0 (legal-education; expo-app)';
+/** Never block the UI longer than this */
+const SEARCH_BUDGET_MS = 8000;
+const REQUEST_TIMEOUT_MS = 7000;
 
 function haversineMeters(
   lat1: number,
@@ -46,97 +49,19 @@ function haversineMeters(
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-/**
- * Collapse separate node/way/relation lines with the same tag filter into one
- * faster `nwr[...]` statement when possible.
- */
-function compactFilters(filters: string[]): string[] {
-  const grouped = new Map<string, Set<string>>();
-  const passthrough: string[] = [];
-
-  for (const filter of filters) {
-    const match = filter.match(/^(node|way|relation)(\[.+\])$/);
-    if (!match) {
-      passthrough.push(filter);
-      continue;
-    }
-    const [, kind, tags] = match;
-    const set = grouped.get(tags) ?? new Set<string>();
-    set.add(kind);
-    grouped.set(tags, set);
-  }
-
-  const compacted: string[] = [];
-  for (const [tags, kinds] of grouped) {
-    if (kinds.size >= 2) {
-      compacted.push(`nwr${tags}`);
-    } else {
-      const kind = [...kinds][0];
-      compacted.push(`${kind}${tags}`);
+function dedupeAndSort(places: NearbyPlace[], maxRadius?: number): NearbyPlace[] {
+  const unique = new Map<string, NearbyPlace>();
+  for (const place of places) {
+    if (maxRadius != null && place.distanceMeters > maxRadius) continue;
+    const key = `${place.name.toLowerCase()}|${place.latitude.toFixed(4)}|${place.longitude.toFixed(4)}`;
+    const existing = unique.get(key);
+    if (!existing || place.distanceMeters < existing.distanceMeters) {
+      unique.set(key, place);
     }
   }
-  return [...compacted, ...passthrough];
-}
-
-function buildQuery(
-  category: LocationCategory,
-  latitude: number,
-  longitude: number,
-  radius: number
-): string {
-  const around = `(around:${radius},${latitude},${longitude})`;
-  const parts = compactFilters(category.overpassFilters)
-    .map((filter) => `  ${filter}${around};`)
-    .join('\n');
-  return `
-[out:json][timeout:25];
-(
-${parts}
-);
-out center;
-`.trim();
-}
-
-function elementToPlace(
-  el: OverpassElement,
-  originLat: number,
-  originLon: number
-): NearbyPlace | null {
-  const latitude = el.lat ?? el.center?.lat;
-  const longitude = el.lon ?? el.center?.lon;
-  if (latitude == null || longitude == null) return null;
-
-  const tags = el.tags ?? {};
-  const name =
-    tags.name ||
-    tags['name:en'] ||
-    tags.brand ||
-    tags.operator ||
-    'Unnamed location';
-
-  const addressParts = [
-    tags['addr:housenumber'],
-    tags['addr:street'],
-    tags['addr:city'],
-    tags['addr:state'],
-  ].filter(Boolean);
-
-  const phone =
-    tags.phone ||
-    tags['contact:phone'] ||
-    tags['phone:US'] ||
-    tags['contact:mobile'] ||
-    tags.mobile;
-
-  return {
-    id: `${el.type}/${el.id}`,
-    name,
-    latitude,
-    longitude,
-    distanceMeters: haversineMeters(originLat, originLon, latitude, longitude),
-    address: addressParts.length ? addressParts.join(' ') : tags['addr:full'],
-    phone: phone || undefined,
-  };
+  return Array.from(unique.values())
+    .sort((a, b) => a.distanceMeters - b.distanceMeters)
+    .slice(0, MAX_RESULTS);
 }
 
 /** Digits (and leading +) for tel: links — use the first number if several are listed */
@@ -157,80 +82,155 @@ export function formatDistance(meters: number, language: string): string {
   return `${miles.toFixed(1)} mi`;
 }
 
-function normalizePlaces(
-  elements: OverpassElement[],
+function passesNameFilters(place: NearbyPlace, category: LocationCategory): boolean {
+  const { nameIncludes, nameExcludes } = category.search;
+  // Filter on place name only — address lines often contain Street/Ave and would false-drop hits
+  const text = place.name.toLowerCase();
+  if (nameExcludes?.length) {
+    for (const ex of nameExcludes) {
+      if (text.includes(ex.toLowerCase())) return false;
+    }
+  }
+  if (nameIncludes?.length) {
+    return nameIncludes.some((inc) => text.includes(inc.toLowerCase()));
+  }
+  return true;
+}
+
+export function getCuratedNearby(
+  category: LocationCategory,
   latitude: number,
-  longitude: number
+  longitude: number,
+  radius = SEARCH_RADIUS_METERS * 4
 ): NearbyPlace[] {
-  const places = elements
-    .map((el) => elementToPlace(el, latitude, longitude))
-    .filter((p): p is NearbyPlace => p != null);
-
-  const unique = new Map<string, NearbyPlace>();
-  for (const place of places) {
-    const key = `${place.name}|${place.latitude.toFixed(4)}|${place.longitude.toFixed(4)}`;
-    const existing = unique.get(key);
-    if (!existing || place.distanceMeters < existing.distanceMeters) {
-      unique.set(key, place);
-    }
-  }
-
-  return Array.from(unique.values())
-    .sort((a, b) => a.distanceMeters - b.distanceMeters)
-    .slice(0, MAX_RESULTS);
+  return dedupeAndSort(
+    (category.curated ?? []).map((c) => ({
+      id: `curated:${category.id}:${c.latitude.toFixed(4)},${c.longitude.toFixed(4)}`,
+      name: c.name,
+      latitude: c.latitude,
+      longitude: c.longitude,
+      distanceMeters: haversineMeters(latitude, longitude, c.latitude, c.longitude),
+      address: c.address,
+      phone: c.phone,
+    })),
+    radius
+  );
 }
 
-async function queryOverpassEndpoint(
-  endpoint: string,
-  query: string
-): Promise<OverpassElement[]> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 28000);
-  try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-        'User-Agent': 'GeraSheriffApp/1.0 (Florida legal education)',
-      },
-      body: `data=${encodeURIComponent(query)}`,
-      signal: controller.signal,
-    });
-    if (!response.ok) {
-      throw new Error(`Overpass HTTP ${response.status}`);
-    }
-    const data = (await response.json()) as { elements?: OverpassElement[] };
-    return data.elements ?? [];
-  } finally {
-    clearTimeout(timer);
-  }
+function nominatimToPlace(
+  row: NominatimResult,
+  originLat: number,
+  originLon: number
+): NearbyPlace | null {
+  const latitude = Number(row.lat);
+  const longitude = Number(row.lon);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+
+  const name =
+    row.name?.trim() ||
+    row.display_name?.split(',')[0]?.trim() ||
+    'Unnamed location';
+
+  return {
+    id: row.osm_type && row.osm_id != null
+      ? `${row.osm_type}/${row.osm_id}`
+      : `nominatim:${row.place_id ?? `${latitude},${longitude}`}`,
+    name,
+    latitude,
+    longitude,
+    distanceMeters: haversineMeters(originLat, originLon, latitude, longitude),
+    address: row.display_name,
+  };
 }
 
-/** Race mirrors — first successful response wins */
-async function queryOverpass(query: string): Promise<OverpassElement[]> {
-  const errors: Error[] = [];
+function viewboxFor(lat: number, lon: number, radiusMeters: number): string {
+  // Nominatim viewbox: left, top, right, bottom
+  const dLat = radiusMeters / 111000;
+  const dLon = radiusMeters / (111000 * Math.cos((lat * Math.PI) / 180));
+  const left = lon - dLon;
+  const right = lon + dLon;
+  const top = lat + dLat;
+  const bottom = lat - dLat;
+  return `${left},${top},${right},${bottom}`;
+}
 
-  return await new Promise<OverpassElement[]>((resolve, reject) => {
-    let pending = OVERPASS_ENDPOINTS.length;
-    let settled = false;
-
-    for (const endpoint of OVERPASS_ENDPOINTS) {
-      void queryOverpassEndpoint(endpoint, query)
-        .then((elements) => {
-          if (settled) return;
-          settled = true;
-          resolve(elements);
-        })
-        .catch((err) => {
-          errors.push(err instanceof Error ? err : new Error(String(err)));
-          pending -= 1;
-          if (!settled && pending === 0) {
-            reject(errors[0] ?? new Error('Failed to load nearby places'));
-          }
-        });
-    }
+async function nominatimSearch(
+  params: Record<string, string>,
+  signal: AbortSignal
+): Promise<NominatimResult[]> {
+  const url = `${NOMINATIM_URL}?${new URLSearchParams(params)}`;
+  const response = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': USER_AGENT,
+    },
+    signal,
   });
+  if (!response.ok) {
+    throw new Error(`Nominatim HTTP ${response.status}`);
+  }
+  const data = (await response.json()) as NominatimResult[];
+  return Array.isArray(data) ? data : [];
+}
+
+async function searchAmenity(
+  amenity: string,
+  latitude: number,
+  longitude: number,
+  radius: number,
+  signal: AbortSignal
+): Promise<NearbyPlace[]> {
+  const rows = await nominatimSearch(
+    {
+      format: 'json',
+      limit: '40',
+      amenity,
+      viewbox: viewboxFor(latitude, longitude, radius * 1.15),
+      bounded: '1',
+      addressdetails: '0',
+    },
+    signal
+  );
+  return rows
+    .map((r) => nominatimToPlace(r, latitude, longitude))
+    .filter((p): p is NearbyPlace => p != null);
+}
+
+async function searchQuery(
+  query: string,
+  latitude: number,
+  longitude: number,
+  radius: number,
+  signal: AbortSignal
+): Promise<NearbyPlace[]> {
+  const rows = await nominatimSearch(
+    {
+      format: 'json',
+      limit: '25',
+      q: query,
+      viewbox: viewboxFor(latitude, longitude, radius * 1.15),
+      bounded: '1',
+      addressdetails: '0',
+    },
+    signal
+  );
+  return rows
+    .map((r) => nominatimToPlace(r, latitude, longitude))
+    .filter((p): p is NearbyPlace => p != null);
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Search timed out')), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 export async function fetchNearbyPlaces(
@@ -239,25 +239,66 @@ export async function fetchNearbyPlaces(
   longitude: number,
   radius = SEARCH_RADIUS_METERS
 ): Promise<NearbyPlace[]> {
-  const radii = [radius, Math.round(radius * 1.75), Math.round(radius * 3)];
-  let lastError: Error | null = null;
+  const curated = getCuratedNearby(category, latitude, longitude, radius * 4);
+  const controller = new AbortController();
+  const kill = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  for (const r of radii) {
-    try {
-      const elements = await queryOverpass(
-        buildQuery(category, latitude, longitude, r)
-      );
-      const places = normalizePlaces(elements, latitude, longitude);
-      if (places.length > 0 || r === radii[radii.length - 1]) {
-        return places;
-      }
-      // empty — widen search radius and try again
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
+  try {
+    const live = await withTimeout(
+      (async () => {
+        const { amenity, queries = [] } = category.search;
+        const hits: NearbyPlace[] = [];
+
+        if (amenity) {
+          hits.push(
+            ...(await searchAmenity(
+              amenity,
+              latitude,
+              longitude,
+              radius,
+              controller.signal
+            ))
+          );
+        }
+
+        // Only hit text search if amenity missing or thin — stay polite to Nominatim
+        const needText = !amenity || hits.length < 3;
+        if (needText && queries.length) {
+          for (const q of queries.slice(0, 2)) {
+            if (controller.signal.aborted) break;
+            try {
+              hits.push(
+                ...(await searchQuery(q, latitude, longitude, radius, controller.signal))
+              );
+            } catch {
+              // keep going with whatever we have
+            }
+            if (hits.length >= 8) break;
+          }
+        }
+
+        return hits;
+      })(),
+      SEARCH_BUDGET_MS
+    );
+
+    const filtered = live.filter((p) => passesNameFilters(p, category));
+    // Widen once if local radius was empty (sparse gov / consulates)
+    let merged = dedupeAndSort([...filtered, ...curated], radius);
+    if (merged.length < 2 && radius < SEARCH_RADIUS_METERS * 3) {
+      const wide = radius * 2.5;
+      const wideCurated = getCuratedNearby(category, latitude, longitude, wide);
+      const wideLive = filtered.filter((p) => p.distanceMeters <= wide);
+      merged = dedupeAndSort([...wideLive, ...wideCurated], wide);
     }
+    return merged;
+  } catch {
+    // Never hang the screen — curated (or empty) beats a spinner
+    return curated.length ? curated : [];
+  } finally {
+    clearTimeout(kill);
+    controller.abort();
   }
-
-  throw lastError ?? new Error('Failed to load nearby places');
 }
 
 export { FALLBACK_COORDS };

@@ -38,22 +38,13 @@ export interface BookItem {
   author: string;
   descriptionEn: string;
   descriptionRu: string;
-  /** Remote cover art (e.g. from gerasheriff.us) */
-  coverUrl: string;
+  /** Remote cover URL, or local `require()` module id */
+  coverUrl: string | number;
+  /** Optional interior preview pages (local `require()` or remote URLs) */
+  previewPages?: Array<string | number>;
   categoryEn: string;
   categoryRu: string;
   stores: BookStoreLink[];
-}
-
-export interface ArticleItem {
-  id: string;
-  titleEn: string;
-  titleRu: string;
-  summaryEn: string;
-  summaryRu: string;
-  bodyEn: string;
-  bodyRu: string;
-  category: string;
 }
 
 export interface EmergencyGuide {

@@ -33,8 +33,6 @@ function RootNavigator() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="search" options={{ title: t('search'), ...backHeader }} />
-        <Stack.Screen name="articles/index" options={{ title: t('articles'), ...backHeader }} />
-        <Stack.Screen name="articles/[id]" options={{ title: t('articles'), ...backHeader }} />
         <Stack.Screen name="videos/[category]" options={{ title: t('videos'), ...backHeader }} />
         <Stack.Screen
           name="emergency/[id]"

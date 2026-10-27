@@ -11,6 +11,8 @@ const en = {
   profile: 'Settings',
   addGeraSheriffBook: 'Add Gera Sheriff book here',
   buyBook: 'Buy / download',
+  bookPreview: 'Preview',
+  bookPreviewHint: 'Tap a cover to open a full-page preview — swipe between pages',
 
   search: 'Search…',
   searchPlaceholder: 'Search videos, guides, glossary, law library…',
@@ -54,7 +56,6 @@ const en = {
   firearms: 'Firearms',
   selfDefense: 'Self-defense',
   news: 'News',
-  articles: 'Articles',
   digitalLibrary: 'Digital Library',
   youtubeLibrary: 'YouTube Library',
   policeCards: 'Police Communication Cards',
@@ -85,7 +86,6 @@ const en = {
   glossaryIntro:
     'Searchable dictionary of important legal terms. Educational only. Not legal advice.',
   glossarySearchPlaceholder: 'Search: arraignment, bail, Miranda…',
-  articlesSearchPlaceholder: 'Search articles…',
   glossaryTermsCount: 'terms',
   lawLibrary: 'Florida State Law Library',
   lawLibraryIntro:
@@ -248,7 +248,6 @@ const en = {
     'Quick static guides for police stops, accidents, and more. Call 911 when needed.',
   tutorialPoliceBody:
     'Tap a card to speak a clear English phrase out loud for the officer.',
-  tutorialArticlesBody: 'Short educational articles about rights, documents, and Florida basics.',
   tutorialGlossaryBody: 'Simple explanations of Florida legal terms in your language.',
   tutorialLawLibraryBody:
     'Florida State Law Library: concise guides on criminal law, traffic, firearms, and more.',
@@ -268,6 +267,8 @@ const ru: typeof en = {
   profile: 'Настройки',
   addGeraSheriffBook: 'Добавьте книгу Gera Sheriff здесь',
   buyBook: 'Купить / скачать',
+  bookPreview: 'Превью',
+  bookPreviewHint: 'Нажмите на обложку — полноэкранный просмотр, листайте страницы',
 
   search: 'Поиск…',
   searchPlaceholder: 'Искать видео, гиды, словарь, юр. библиотеку…',
@@ -311,7 +312,6 @@ const ru: typeof en = {
   firearms: 'Оружие',
   selfDefense: 'Самооборона',
   news: 'Новости',
-  articles: 'Статьи',
   digitalLibrary: 'Электронная библиотека',
   youtubeLibrary: 'Библиотека YouTube',
   policeCards: 'Карточки для полиции',
@@ -342,7 +342,6 @@ const ru: typeof en = {
   glossaryIntro:
     'Поиск по важным юридическим терминам. Только для обучения. Не юридическая консультация.',
   glossarySearchPlaceholder: 'Поиск: arraignment, залог, Миранда…',
-  articlesSearchPlaceholder: 'Поиск статей…',
   glossaryTermsCount: 'терминов',
   lawLibrary: 'Юридическая библиотека Флориды',
   lawLibraryIntro:
@@ -503,7 +502,6 @@ const ru: typeof en = {
     'Краткие инструкции при остановке, ДТП и другом. При угрозе звоните 911.',
   tutorialPoliceBody:
     'Нажмите на карточку. Приложение произнесёт английскую фразу для полицейского.',
-  tutorialArticlesBody: 'Короткие образовательные статьи о правах, документах и основах Флориды.',
   tutorialGlossaryBody: 'Простые объяснения юридических терминов Флориды на вашем языке.',
   tutorialLawLibraryBody:
     'Юридическая библиотека Флориды: краткие темы по уголовному праву, дорожному праву, оружию и другому.',
@@ -523,6 +521,8 @@ const es: typeof en = {
   profile: 'Ajustes',
   addGeraSheriffBook: 'Agrega el libro Gera Sheriff aquí',
   buyBook: 'Comprar / descargar',
+  bookPreview: 'Vista previa',
+  bookPreviewHint: 'Toca la portada para abrir la vista previa — desliza entre páginas',
 
   search: 'Buscar…',
   searchPlaceholder: 'Buscar videos, guías, glosario, biblioteca legal…',
@@ -566,7 +566,6 @@ const es: typeof en = {
   firearms: 'Armas de fuego',
   selfDefense: 'Autodefensa',
   news: 'Noticias',
-  articles: 'Artículos',
   digitalLibrary: 'Biblioteca digital',
   youtubeLibrary: 'Biblioteca de YouTube',
   policeCards: 'Tarjetas para la policía',
@@ -597,7 +596,6 @@ const es: typeof en = {
   glossaryIntro:
     'Diccionario de términos legales importantes. Solo educativo. No es asesoramiento legal.',
   glossarySearchPlaceholder: 'Buscar: arraignment, fianza, Miranda…',
-  articlesSearchPlaceholder: 'Buscar artículos…',
   glossaryTermsCount: 'términos',
   lawLibrary: 'Biblioteca legal del estado de Florida',
   lawLibraryIntro:
@@ -758,7 +756,6 @@ const es: typeof en = {
     'Guías rápidas para paradas policiales, accidentes y más. Llama al 911 cuando sea necesario.',
   tutorialPoliceBody:
     'Toca una tarjeta para reproducir en voz alta una frase clara en inglés para el oficial.',
-  tutorialArticlesBody: 'Artículos educativos breves sobre derechos, documentos y aspectos básicos de Florida.',
   tutorialGlossaryBody: 'Explicaciones sencillas de términos legales de Florida en tu idioma.',
   tutorialLawLibraryBody:
     'Biblioteca legal de Florida: guías breves sobre derecho penal, leyes de tránsito, armas y más.',
@@ -778,6 +775,8 @@ const pt: typeof en = {
   profile: 'Configurações',
   addGeraSheriffBook: 'Adicione o livro Gera Sheriff aqui',
   buyBook: 'Comprar / baixar',
+  bookPreview: 'Prévia',
+  bookPreviewHint: 'Toque na capa para abrir a prévia — deslize entre as páginas',
 
   search: 'Buscar…',
   searchPlaceholder: 'Buscar vídeos, guias, glossário, biblioteca jurídica…',
@@ -821,7 +820,6 @@ const pt: typeof en = {
   firearms: 'Armas de fogo',
   selfDefense: 'Autodefesa',
   news: 'Notícias',
-  articles: 'Artigos',
   digitalLibrary: 'Biblioteca digital',
   youtubeLibrary: 'Biblioteca do YouTube',
   policeCards: 'Cartões para a polícia',
@@ -852,7 +850,6 @@ const pt: typeof en = {
   glossaryIntro:
     'Dicionário de termos jurídicos importantes. Apenas educativo. Não é aconselhamento jurídico.',
   glossarySearchPlaceholder: 'Buscar: arraignment, fiança, Miranda…',
-  articlesSearchPlaceholder: 'Buscar artigos…',
   glossaryTermsCount: 'termos',
   lawLibrary: 'Biblioteca jurídica do estado da Flórida',
   lawLibraryIntro:
@@ -1013,7 +1010,6 @@ const pt: typeof en = {
     'Guias rápidos para abordagens policiais, acidentes e mais. Ligue para o 911 quando necessário.',
   tutorialPoliceBody:
     'Toque um cartão para falar em voz alta uma frase clara em inglês para o policial.',
-  tutorialArticlesBody: 'Artigos educativos curtos sobre direitos, documentos e o básico da Flórida.',
   tutorialGlossaryBody: 'Explicações simples de termos jurídicos da Flórida no seu idioma.',
   tutorialLawLibraryBody:
     'Biblioteca jurídica da Flórida: guias curtos sobre direito penal, trânsito, armas e mais.',
@@ -1033,6 +1029,8 @@ const ht: typeof en = {
   profile: 'Paramèt',
   addGeraSheriffBook: 'Ajoute liv Gera Sheriff la a',
   buyBook: 'Achte / telechaje',
+  bookPreview: 'Aperçu',
+  bookPreviewHint: 'Peze sou kouvèti a pou louvri aperçu a — glise ant paj yo',
 
   search: 'Chèche…',
   searchPlaceholder: 'Chèche videyo, gid, glosè, bibliyotèk legal…',
@@ -1076,7 +1074,6 @@ const ht: typeof en = {
   firearms: 'Zam dife',
   selfDefense: 'Oto-defans',
   news: 'Nouvèl',
-  articles: 'Atik',
   digitalLibrary: 'Bibliyotèk dijital',
   youtubeLibrary: 'Bibliyotèk YouTube',
   policeCards: 'Kat pou lapolis',
@@ -1107,7 +1104,6 @@ const ht: typeof en = {
   glossaryIntro:
     'Diksyonè tèm legal enpòtan. Sèlman pou edikasyon. Se pa konsèy legal.',
   glossarySearchPlaceholder: 'Chèche: arraignment, kosyon, Miranda…',
-  articlesSearchPlaceholder: 'Chèche atik…',
   glossaryTermsCount: 'tèm',
   lawLibrary: 'Bibliyotèk lalwa eta Florid',
   lawLibraryIntro:
@@ -1268,7 +1264,6 @@ const ht: typeof en = {
     'Gid rapid pou arè polis, aksidan ak lòt bagay. Rele 911 lè sa nesesè.',
   tutorialPoliceBody:
     'Peze yon kat pou jwe yon fraz ann anglè klè byen fò pou ofisye a.',
-  tutorialArticlesBody: 'Ti atik edikatif sou dwa, dokiman ak baz Florid la.',
   tutorialGlossaryBody: 'Eksplikasyon senp tèm legal Florid nan lang ou.',
   tutorialLawLibraryBody:
     'Bibliyotèk lalwa Florid: gid kout sou lwa kriminèl, sikilasyon, zam ak lòt bagay.',

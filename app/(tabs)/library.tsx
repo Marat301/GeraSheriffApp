@@ -1,19 +1,33 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '../../src/components/AppText';
 import { Screen } from '../../src/components/Screen';
 import { VideoCard } from '../../src/components/VideoCard';
 import { useLanguage } from '../../src/context/LanguageContext';
 import {
   bookCategory,
+  bookCoverSource,
   bookDescription,
+  bookPreviewSource,
   books,
   bookStoreLabel,
   bookTitle,
+  getBookPreviewPages,
 } from '../../src/data/books';
+import { BookItem } from '../../src/types';
 import {
   playlistTitle,
   playlists,
@@ -34,6 +48,8 @@ const CHANNEL_VIDEOS_URL = 'https://www.youtube.com/@GeraSheriff/videos';
 
 export default function LibraryScreen() {
   const { language, t } = useLanguage();
+  const insets = useSafeAreaInsets();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [section, setSection] = useState<Section>('videos');
   const [videoTab, setVideoTab] = useState<VideoTab>('playlists');
   const [featured, setFeatured] = useState<FeedVideo | null>(null);
@@ -42,6 +58,25 @@ export default function LibraryScreen() {
   const [loadingAll, setLoadingAll] = useState(false);
   const [allError, setAllError] = useState(false);
   const [allLoaded, setAllLoaded] = useState(false);
+  const [previewBook, setPreviewBook] = useState<BookItem | null>(null);
+  const [previewPage, setPreviewPage] = useState(0);
+  const [previewWidth, setPreviewWidth] = useState(Math.max(0, windowWidth - spacing.md * 2));
+  const previewListRef = useRef<FlatList<string | number>>(null);
+  const onPreviewPagesChanged = useRef(
+    (info: { viewableItems: Array<{ index?: number | null }> }) => {
+      const idx = info.viewableItems[0]?.index;
+      if (typeof idx === 'number') setPreviewPage(idx);
+    }
+  ).current;
+  const previewViewability = useRef({ viewAreaCoveragePercentThreshold: 60 }).current;
+
+  useEffect(() => {
+    if (!previewBook) return;
+    setPreviewPage(0);
+    requestAnimationFrame(() => {
+      previewListRef.current?.scrollToOffset({ offset: 0, animated: false });
+    });
+  }, [previewBook]);
 
   useFocusEffect(
     useCallback(() => {
@@ -247,20 +282,42 @@ export default function LibraryScreen() {
         </>
       ) : (
         <>
+          <AppText muted style={{ marginBottom: spacing.md }}>
+            {t('bookPreviewHint')}
+          </AppText>
           {books.map((book) => {
             const title = bookTitle(book, language);
             const description = bookDescription(book, language);
             const category = bookCategory(book, language);
+            const hasPreview = getBookPreviewPages(book).length > 0;
             return (
               <View key={book.id} style={styles.bookCard}>
-                <View style={styles.coverWrap}>
+                <Pressable
+                  disabled={!hasPreview}
+                  onPress={() => setPreviewBook(book)}
+                  style={({ pressed }) => [
+                    styles.coverWrap,
+                    pressed && hasPreview && { opacity: 0.9 },
+                  ]}
+                  accessibilityRole={hasPreview ? 'button' : undefined}
+                  accessibilityLabel={
+                    hasPreview ? `${title}. ${t('bookPreview')}` : title
+                  }
+                >
                   <Image
-                    source={{ uri: book.coverUrl }}
+                    source={bookCoverSource(book)}
                     style={styles.cover}
                     resizeMode="cover"
-                    accessibilityLabel={title}
                   />
-                </View>
+                  {hasPreview ? (
+                    <View style={styles.previewBadge}>
+                      <Ionicons name="book-outline" size={14} color={colors.white} />
+                      <AppText variant="caption" color={colors.white}>
+                        {t('bookPreview')}
+                      </AppText>
+                    </View>
+                  ) : null}
+                </Pressable>
                 <AppText variant="caption" color={colors.textMuted} style={styles.bookCategory}>
                   {category.toUpperCase()}
                 </AppText>
@@ -321,6 +378,93 @@ export default function LibraryScreen() {
           })}
         </>
       )}
+
+      <Modal
+        visible={previewBook != null}
+        animationType="fade"
+        transparent
+        statusBarTranslucent
+        onRequestClose={() => setPreviewBook(null)}
+      >
+        <View style={styles.previewOverlay}>
+          <Pressable
+            onPress={() => setPreviewBook(null)}
+            hitSlop={16}
+            style={[styles.previewClose, { top: insets.top + 10 }]}
+            accessibilityRole="button"
+            accessibilityLabel={t('close')}
+          >
+            <Ionicons name="close" size={24} color={colors.white} />
+          </Pressable>
+
+          <FlatList
+            ref={previewListRef}
+            style={styles.previewPager}
+            data={previewBook ? getBookPreviewPages(previewBook) : []}
+            keyExtractor={(_, index) => `${previewBook?.id ?? 'book'}-page-${index}`}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onViewableItemsChanged={onPreviewPagesChanged as never}
+            viewabilityConfig={previewViewability}
+            extraData={`${previewWidth}-${windowHeight}`}
+            onLayout={(e) => {
+              const w = Math.round(e.nativeEvent.layout.width);
+              if (w > 0 && w !== previewWidth) setPreviewWidth(w);
+            }}
+            getItemLayout={(_, index) => ({
+              length: previewWidth || windowWidth,
+              offset: (previewWidth || windowWidth) * index,
+              index,
+            })}
+            renderItem={({ item, index }) => {
+              const slideW = previewWidth || windowWidth;
+              const maxW = slideW - 16;
+              const maxH = windowHeight - insets.top - insets.bottom - 56;
+              const isCover = index === 0;
+              const aspect = isCover ? 1.5 : 1.42;
+              let pageWidth = maxW;
+              let pageHeight = pageWidth * aspect;
+              if (pageHeight > maxH) {
+                pageHeight = maxH;
+                pageWidth = pageHeight / aspect;
+              }
+              return (
+                <View style={[styles.previewSlide, { width: slideW, height: windowHeight }]}>
+                  <Image
+                    source={bookPreviewSource(item)}
+                    style={[
+                      isCover ? styles.previewCoverImage : styles.previewPageImage,
+                      { width: pageWidth, height: pageHeight },
+                    ]}
+                    resizeMode="contain"
+                  />
+                </View>
+              );
+            }}
+          />
+
+          {previewBook && getBookPreviewPages(previewBook).length > 1 ? (
+            <View style={[styles.previewFooter, { bottom: insets.bottom + 14 }]}>
+              <View style={styles.previewDots}>
+                {getBookPreviewPages(previewBook).map((_, i) => (
+                  <View
+                    key={`dot-${i}`}
+                    style={[styles.previewDot, i === previewPage && styles.previewDotActive]}
+                  />
+                ))}
+              </View>
+              <AppText variant="caption" style={styles.previewHint}>
+                {previewPage <= 0
+                  ? t('tutorialSwipeNext')
+                  : previewPage >= getBookPreviewPages(previewBook).length - 1
+                    ? t('tutorialSwipeBack')
+                    : t('tutorialSwipeBoth')}
+              </AppText>
+            </View>
+          ) : null}
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -431,6 +575,75 @@ const styles = StyleSheet.create({
   cover: {
     width: '100%',
     height: '100%',
+  },
+  previewBadge: {
+    position: 'absolute',
+    left: 8,
+    right: 8,
+    bottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(0,0,0,0.72)',
+    borderRadius: radius.sm,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
+  previewOverlay: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  previewClose: {
+    position: 'absolute',
+    right: 16,
+    zIndex: 2,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.14)',
+  },
+  previewPager: {
+    flex: 1,
+  },
+  previewSlide: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewCoverImage: {
+    borderRadius: 4,
+  },
+  previewPageImage: {
+    backgroundColor: colors.white,
+    borderRadius: 2,
+  },
+  previewFooter: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    gap: 8,
+  },
+  previewDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  previewDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.35)',
+  },
+  previewDotActive: {
+    backgroundColor: colors.white,
+    width: 18,
+  },
+  previewHint: {
+    textAlign: 'center',
+    color: 'rgba(255,255,255,0.65)',
   },
   bookCategory: {
     letterSpacing: 0.6,

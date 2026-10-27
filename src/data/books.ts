@@ -3,9 +3,28 @@ import { BookItem, Language } from '../types';
 const COVER = {
   ice: 'https://gerasheriff.us/assets/book-ice.jpg',
   police1: 'https://gerasheriff.us/assets/book-police-1.jpg',
-  police2: 'https://gerasheriff.us/assets/book-police-2.png',
+  /** Front cover only — remote asset is a full jacket wrap */
+  police2: require('../../assets/book-previews/police-usa-2-cover.jpg'),
   weapons: 'https://gerasheriff.us/assets/book-weapons.jpg',
-  dv: 'https://gerasheriff.us/assets/book-dv.jpg',
+  dv: require('../../assets/book-previews/dv-usa-cover.jpg'),
+} as const;
+
+const PREVIEW = {
+  ice: [
+    require('../../assets/book-previews/ice-usa-page-1.png'),
+    require('../../assets/book-previews/ice-usa-page-2.png'),
+  ],
+  police1: [
+    require('../../assets/book-previews/police-usa-1-page-1.png'),
+  ],
+  weapons: [
+    require('../../assets/book-previews/weapons-usa-page-1.png'),
+    require('../../assets/book-previews/weapons-usa-page-2.png'),
+  ],
+  dv: [
+    require('../../assets/book-previews/dv-usa-page-1.png'),
+    require('../../assets/book-previews/dv-usa-page-2.png'),
+  ],
 } as const;
 
 const amazon = (url: string): BookItem['stores'][number] => ({
@@ -38,6 +57,7 @@ export const books: BookItem[] = [
     descriptionEn: 'Immigration control and dealing with ICE.',
     descriptionRu: 'Иммиграционный контроль и взаимодействие с ICE.',
     coverUrl: COVER.ice,
+    previewPages: [...PREVIEW.ice],
     categoryEn: 'Immigration',
     categoryRu: 'Иммиграция',
     stores: [
@@ -53,6 +73,7 @@ export const books: BookItem[] = [
     descriptionEn: 'How an ordinary encounter can become a criminal case.',
     descriptionRu: 'Как обычный контакт может стать уголовным делом.',
     coverUrl: COVER.police1,
+    previewPages: [...PREVIEW.police1],
     categoryEn: 'Police · Book One',
     categoryRu: 'Полиция · Книга первая',
     stores: [
@@ -89,6 +110,7 @@ export const books: BookItem[] = [
     descriptionEn: 'Owner responsibility and safety.',
     descriptionRu: 'Ответственность владельца и вопросы безопасности.',
     coverUrl: COVER.weapons,
+    previewPages: [...PREVIEW.weapons],
     categoryEn: 'Firearms · Book Three',
     categoryRu: 'Оружие · Книга третья',
     stores: [
@@ -104,6 +126,7 @@ export const books: BookItem[] = [
     descriptionEn: 'An encyclopedia for understanding the issue and its consequences.',
     descriptionRu: 'Энциклопедия для понимания проблемы и её последствий.',
     coverUrl: COVER.dv,
+    previewPages: [...PREVIEW.dv],
     categoryEn: 'Domestic Violence · First book in series',
     categoryRu: 'Домашнее насилие · Первая книга серии',
     stores: [
@@ -114,6 +137,21 @@ export const books: BookItem[] = [
     ],
   },
 ];
+
+export function bookCoverSource(book: BookItem) {
+  return typeof book.coverUrl === 'number' ? book.coverUrl : { uri: book.coverUrl };
+}
+
+export function bookPreviewSource(page: string | number) {
+  return typeof page === 'number' ? page : { uri: page };
+}
+
+/** Cover first, then interior sample pages (if any). */
+export function getBookPreviewPages(book: BookItem): Array<string | number> {
+  const interior = book.previewPages ?? [];
+  if (!interior.length) return [];
+  return [book.coverUrl, ...interior];
+}
 
 export function bookStoreLabel(
   store: BookItem['stores'][number],

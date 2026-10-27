@@ -13,7 +13,24 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { WebView as RNWebView } from 'react-native-webview';
+import type { WebViewMessageEvent } from 'react-native-webview';
+
+type MapWebView = {
+  injectJavaScript: (script: string) => void;
+};
+
+/** RN 0.88 + webview platform prop intersection currently resolves to `never`. */
+const WebView = RNWebView as unknown as React.ComponentType<{
+  key?: React.Key;
+  ref?: React.Ref<MapWebView>;
+  originWhitelist?: string[];
+  source?: { html: string } | { uri: string };
+  style?: object;
+  javaScriptEnabled?: boolean;
+  domStorageEnabled?: boolean;
+  onMessage?: (event: WebViewMessageEvent) => void;
+}>;
 import { AppText } from '../../src/components/AppText';
 import { LanguageToggle } from '../../src/components/LanguageToggle';
 import { StackBackButton } from '../../src/components/StackBackButton';
@@ -26,6 +43,7 @@ import {
 import {
   fetchNearbyPlaces,
   formatDistance,
+  getCuratedNearby,
   NearbyPlace,
   toTelUrl,
 } from '../../src/services/nearbyPlaces';
@@ -77,7 +95,7 @@ function buildMapHtml(
     const map = L.map('map', { zoomControl: true }).setView([${latitude}, ${longitude}], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
     }).addTo(map);
 
     function userIconHtml() {
@@ -160,7 +178,7 @@ function buildMapHtml(
 export default function EmergencyLocationCategoryScreen() {
   const params = useLocalSearchParams<{ category?: string | string[] }>();
   const { language, t } = useLanguage();
-  const webRef = useRef<WebView>(null);
+  const webRef = useRef<MapWebView>(null);
   const errorMessageRef = useRef(t('locationsLoadError'));
   errorMessageRef.current = t('locationsLoadError');
 
@@ -240,6 +258,15 @@ export default function EmergencyLocationCategoryScreen() {
       setCityLabel(label);
       setUsingFallback(fallback);
 
+      // Instant seeds so sparse categories never sit on a blank spinner
+      const seeded = getCuratedNearby(category!, latitude, longitude);
+      if (seeded.length) {
+        setPlaces(seeded);
+        setSelectedId(seeded[0]?.id ?? null);
+        setMapEpoch((n) => n + 1);
+        setMapReady(true);
+      }
+
       try {
         const results = await fetchNearbyPlaces(category!, latitude, longitude);
         if (gen !== loadGenRef.current) return;
@@ -248,11 +275,14 @@ export default function EmergencyLocationCategoryScreen() {
         else setSelectedId(null);
         setMapEpoch((n) => n + 1);
         setMapReady(true);
+        setError(null);
       } catch {
         if (gen !== loadGenRef.current) return;
-        setPlaces([]);
-        setSelectedId(null);
-        setError(errorMessageRef.current);
+        if (!seeded.length) {
+          setPlaces([]);
+          setSelectedId(null);
+          setError(errorMessageRef.current);
+        }
         setMapEpoch((n) => n + 1);
         setMapReady(true);
       } finally {

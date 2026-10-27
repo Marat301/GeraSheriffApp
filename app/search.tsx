@@ -6,7 +6,6 @@ import { AppText } from '../src/components/AppText';
 import { Screen } from '../src/components/Screen';
 import { SearchBar } from '../src/components/SearchBar';
 import { useLanguage } from '../src/context/LanguageContext';
-import { articles } from '../src/data/articles';
 import { caseRoadmapSteps } from '../src/data/caseRoadmap';
 import { criminalStatutes } from '../src/data/criminalStatutes';
 import { emergencyGuides } from '../src/data/emergency';
@@ -61,18 +60,6 @@ export default function SearchScreen() {
           title,
           type: t('videos'),
           openUrl: resolveVideoOpenUrl(v.youtubeId),
-        });
-      }
-    });
-
-    articles.forEach((a) => {
-      const title = language === 'ru' ? a.titleRu : a.titleEn;
-      if (title.toLowerCase().includes(q)) {
-        items.push({
-          id: `article-${a.id}`,
-          title,
-          type: t('articles'),
-          href: `/articles/${a.id}`,
         });
       }
     });

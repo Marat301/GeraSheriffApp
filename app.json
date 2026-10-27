@@ -17,7 +17,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Gera Sheriff uses your location to find nearby emergency services such as hospitals, police, and shelters.",
         "NSMicrophoneUsageDescription": "Gera Sheriff uses the microphone so you can dictate phrases in the Translator.",
-        "NSSpeechRecognitionUsageDescription": "Gera Sheriff uses speech recognition to turn your voice into text in the Translator."
+        "NSSpeechRecognitionUsageDescription": "Gera Sheriff uses speech recognition to turn your voice into text in the Translator.",
+        "NSPhotoLibraryUsageDescription": "Gera Sheriff does not use your photo library. This permission string is required by an included library."
       }
     },
     "android": {

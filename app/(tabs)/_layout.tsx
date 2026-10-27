@@ -31,7 +31,11 @@ export default function TabsLayout() {
         options={{
           title: t('home'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <Ionicons
+              name="home"
+              size={size}
+              color={typeof color === 'string' ? color : colors.blueBright}
+            />
           ),
         }}
       />
@@ -40,7 +44,11 @@ export default function TabsLayout() {
         options={{
           title: t('catalogue'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="library" size={size} color={color} />
+            <Ionicons
+              name="library"
+              size={size}
+              color={typeof color === 'string' ? color : colors.textMuted}
+            />
           ),
         }}
       />
@@ -49,7 +57,11 @@ export default function TabsLayout() {
         options={{
           title: t('emergency'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="warning" size={size} color={color} />
+            <Ionicons
+              name="warning"
+              size={size}
+              color={typeof color === 'string' ? color : colors.textMuted}
+            />
           ),
         }}
       />
@@ -58,7 +70,11 @@ export default function TabsLayout() {
         options={{
           title: t('profile'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
+            <Ionicons
+              name="settings-outline"
+              size={size}
+              color={typeof color === 'string' ? color : colors.textMuted}
+            />
           ),
         }}
       />

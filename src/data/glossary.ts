@@ -3,7 +3,7 @@ import { GlossaryTerm, Language } from '../types';
 /**
  * Florida / US legal glossary for newcomers.
  * Educational only — not legal advice.
- * Each locale shows only that language (no bilingual labels).
+ * Non-English locales show the local term with the English term in parentheses.
  */
 export const glossaryTerms: GlossaryTerm[] = [
   {
@@ -1037,18 +1037,21 @@ export const glossaryTerms: GlossaryTerm[] = [
 ].sort((a, b) => a.termEn.localeCompare(b.termEn));
 
 export function glossaryTermLabel(term: GlossaryTerm, language: Language): string {
-  switch (language) {
-    case 'ru':
-      return term.termRu;
-    case 'es':
-      return term.termEs;
-    case 'pt':
-      return term.termPt;
-    case 'ht':
-      return term.termHt;
-    default:
-      return term.termEn;
+  const localized =
+    language === 'ru'
+      ? term.termRu
+      : language === 'es'
+        ? term.termEs
+        : language === 'pt'
+          ? term.termPt
+          : language === 'ht'
+            ? term.termHt
+            : term.termEn;
+
+  if (language === 'en' || localized === term.termEn) {
+    return term.termEn;
   }
+  return `${localized} (${term.termEn})`;
 }
 
 export function glossaryDefinition(term: GlossaryTerm, language: Language): string {
