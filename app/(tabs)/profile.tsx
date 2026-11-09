@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '../../src/components/AppText';
 import { Screen } from '../../src/components/Screen';
 import { useLanguage } from '../../src/context/LanguageContext';
+import { useSubscription } from '../../src/context/SubscriptionContext';
 import {
   LANGUAGE_DISPLAY_LABEL,
   PREFERRED_LANGUAGE_DISPLAY_LABEL,
@@ -19,6 +20,7 @@ export default function SettingsScreen() {
     setPreferredLanguage,
     setEnglishOnly,
   } = useLanguage();
+  const { isPro, bypass, restore } = useSubscription();
 
   const onSelectPreferred = async (lang: PreferredLanguage) => {
     await setPreferredLanguage(lang);
@@ -27,6 +29,22 @@ export default function SettingsScreen() {
   return (
     <Screen>
       <AppText variant="hero">{t('profileTitle')}</AppText>
+
+      <View style={styles.section}>
+        <AppText variant="label" style={{ marginBottom: spacing.xs }}>
+          {t('subscription')}
+        </AppText>
+        <AppText muted style={{ marginBottom: spacing.md }}>
+          {bypass
+            ? 'Dev mode (no RevenueCat API key)'
+            : isPro
+              ? t('subscriptionActive')
+              : t('subscriptionInactive')}
+        </AppText>
+        <Pressable onPress={() => void restore()} style={styles.langChip}>
+          <AppText color={colors.textSecondary}>{t('paywallRestore')}</AppText>
+        </Pressable>
+      </View>
 
       <View style={styles.section}>
         <AppText variant="label" style={{ marginBottom: spacing.xs }}>

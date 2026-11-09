@@ -3,8 +3,10 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LanguageOnboardingModal } from '../src/components/LanguageOnboardingModal';
+import { PaywallGate } from '../src/components/PaywallGate';
 import { StackBackButton } from '../src/components/StackBackButton';
 import { LanguageProvider, useLanguage } from '../src/context/LanguageContext';
+import { SubscriptionProvider } from '../src/context/SubscriptionContext';
 import { colors } from '../src/theme/colors';
 
 function RootNavigator() {
@@ -20,78 +22,80 @@ function RootNavigator() {
     <>
       <StatusBar style="light" />
       <LanguageOnboardingModal />
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.blackSoft },
-          headerTintColor: colors.white,
-          headerTitleStyle: { fontWeight: '700' },
-          contentStyle: { backgroundColor: colors.black },
-          headerShadowVisible: false,
-          headerBackTitle: '',
-          headerBackButtonDisplayMode: 'minimal',
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="search" options={{ title: t('search'), ...backHeader }} />
-        <Stack.Screen name="videos/[category]" options={{ title: t('videos'), ...backHeader }} />
-        <Stack.Screen
-          name="emergency/[id]"
-          options={{ title: t('emergencyGuides'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="police-cards/index"
-          options={{ title: t('policeCards'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="translator/index"
-          options={{ title: t('translator'), ...backHeader }}
-        />
-        <Stack.Screen name="glossary/index" options={{ title: t('glossary'), ...backHeader }} />
-        <Stack.Screen
-          name="case-roadmap/index"
-          options={{ title: t('caseRoadmap'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="official-links/index"
-          options={{ title: t('officialLinks'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="consultations/index"
-          options={{ title: t('consultations'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="law-library/index"
-          options={{ title: t('lawLibrary'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="law-library/[category]"
-          options={{ title: t('lawLibrary'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="law-library/article/[id]"
-          options={{ title: t('lawLibrary'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="law-library/statute-lookup"
-          options={{ title: t('statuteLookup'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="law-library/statute/[code]"
-          options={{ title: t('statuteLookup'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="playlists/[id]"
-          options={{ title: t('playlists'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="emergency-locations/index"
-          options={{ title: t('emergencyLocations'), ...backHeader }}
-        />
-        <Stack.Screen
-          name="emergency-locations/[category]"
-          options={{ title: t('emergencyLocations'), ...backHeader }}
-        />
-      </Stack>
+      <PaywallGate>
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: colors.blackSoft },
+            headerTintColor: colors.white,
+            headerTitleStyle: { fontWeight: '700' },
+            contentStyle: { backgroundColor: colors.black },
+            headerShadowVisible: false,
+            headerBackTitle: '',
+            headerBackButtonDisplayMode: 'minimal',
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="search" options={{ title: t('search'), ...backHeader }} />
+          <Stack.Screen name="videos/[category]" options={{ title: t('videos'), ...backHeader }} />
+          <Stack.Screen
+            name="emergency/[id]"
+            options={{ title: t('emergencyGuides'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="police-cards/index"
+            options={{ title: t('policeCards'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="translator/index"
+            options={{ title: t('translator'), ...backHeader }}
+          />
+          <Stack.Screen name="glossary/index" options={{ title: t('glossary'), ...backHeader }} />
+          <Stack.Screen
+            name="case-roadmap/index"
+            options={{ title: t('caseRoadmap'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="official-links/index"
+            options={{ title: t('officialLinks'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="consultations/index"
+            options={{ title: t('consultations'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="law-library/index"
+            options={{ title: t('lawLibrary'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="law-library/[category]"
+            options={{ title: t('lawLibrary'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="law-library/article/[id]"
+            options={{ title: t('lawLibrary'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="law-library/statute-lookup"
+            options={{ title: t('statuteLookup'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="law-library/statute/[code]"
+            options={{ title: t('statuteLookup'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="playlists/[id]"
+            options={{ title: t('playlists'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="emergency-locations/index"
+            options={{ title: t('emergencyLocations'), ...backHeader }}
+          />
+          <Stack.Screen
+            name="emergency-locations/[category]"
+            options={{ title: t('emergencyLocations'), ...backHeader }}
+          />
+        </Stack>
+      </PaywallGate>
     </>
   );
 }
@@ -100,7 +104,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LanguageProvider>
-        <RootNavigator />
+        <SubscriptionProvider>
+          <RootNavigator />
+        </SubscriptionProvider>
       </LanguageProvider>
     </GestureHandlerRootView>
   );

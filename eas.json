@@ -15,7 +15,10 @@
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_REVENUECAT_IOS_API_KEY": "appl_xcQyzWOkjGpnsBKZVhpLsjPXdmk"
+      }
     }
   },
   "submit": {
