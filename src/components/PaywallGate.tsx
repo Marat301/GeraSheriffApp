@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Linking,
   Pressable,
   StyleSheet,
@@ -74,6 +75,11 @@ export function PaywallGate({ children }: Props) {
       ]}
     >
       <View style={styles.header}>
+        <Image
+          source={require('../../assets/gera-sheriff-badge.png')}
+          style={styles.logo}
+          accessibilityLabel="Gera Sheriff badge"
+        />
         <AppText variant="hero" style={styles.brand}>
           {t('appName')}
         </AppText>
@@ -203,6 +209,11 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: spacing.xl,
+  },
+  logo: {
+    width: 112,
+    height: 112,
+    marginBottom: spacing.md,
   },
   brand: {
     textAlign: 'center',
