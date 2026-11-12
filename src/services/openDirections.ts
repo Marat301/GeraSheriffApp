@@ -8,24 +8,31 @@ export type DirectionsPlace = {
 
 export type DirectionsLabels = {
   title: string;
-  appleMaps: string;
+  defaultMaps: string;
   googleMaps: string;
   waze: string;
   cancel: string;
   failed: string;
 };
 
-type NavApp = 'apple' | 'google' | 'waze';
+type NavApp = 'default' | 'google' | 'waze';
 
 function urlsFor(app: NavApp, place: DirectionsPlace) {
   const { latitude: lat, longitude: lng, name } = place;
   const label = encodeURIComponent(name);
 
   switch (app) {
-    case 'apple':
+    case 'default':
+      // iOS: system Maps; Android: geo: opens the phone's preferred maps app.
       return {
-        primary: `maps://?daddr=${lat},${lng}&q=${label}`,
-        fallback: `http://maps.apple.com/?daddr=${lat},${lng}&q=${label}`,
+        primary:
+          Platform.OS === 'ios'
+            ? `maps://?daddr=${lat},${lng}&q=${label}`
+            : `geo:${lat},${lng}?q=${lat},${lng}(${label})`,
+        fallback:
+          Platform.OS === 'ios'
+            ? `http://maps.apple.com/?daddr=${lat},${lng}&q=${label}`
+            : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
       };
     case 'google':
       return {
@@ -64,17 +71,15 @@ async function openApp(app: NavApp, place: DirectionsPlace, failedLabel: string)
 }
 
 /**
- * Shows a platform chooser for Apple Maps (iOS), Google Maps, and Waze,
+ * Shows a chooser for the phone's default maps app, Google Maps, and Waze,
  * then opens the selected app (with an https fallback if the native scheme fails).
  */
 export function promptOpenDirections(place: DirectionsPlace, labels: DirectionsLabels) {
-  const choices: { id: NavApp; label: string }[] = [];
-
-  if (Platform.OS === 'ios') {
-    choices.push({ id: 'apple', label: labels.appleMaps });
-  }
-  choices.push({ id: 'google', label: labels.googleMaps });
-  choices.push({ id: 'waze', label: labels.waze });
+  const choices: { id: NavApp; label: string }[] = [
+    { id: 'default', label: labels.defaultMaps },
+    { id: 'google', label: labels.googleMaps },
+    { id: 'waze', label: labels.waze },
+  ];
 
   if (Platform.OS === 'ios') {
     const optionLabels = [...choices.map((c) => c.label), labels.cancel];

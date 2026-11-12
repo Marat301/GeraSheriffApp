@@ -366,7 +366,7 @@ export default function EmergencyLocationCategoryScreen() {
   const openDirections = (place: NearbyPlace) => {
     promptOpenDirections(place, {
       title: t('locationsChooseApp'),
-      appleMaps: t('locationsAppleMaps'),
+      defaultMaps: t('locationsDefaultMaps'),
       googleMaps: t('locationsGoogleMaps'),
       waze: t('locationsWaze'),
       cancel: t('cancel'),
