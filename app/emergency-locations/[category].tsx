@@ -6,7 +6,6 @@ import {
   Alert,
   Keyboard,
   Linking,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -47,6 +46,7 @@ import {
   NearbyPlace,
   toTelUrl,
 } from '../../src/services/nearbyPlaces';
+import { promptOpenDirections } from '../../src/services/openDirections';
 import {
   geocodePlaceQuery,
   readCachedCoords,
@@ -364,15 +364,13 @@ export default function EmergencyLocationCategoryScreen() {
   }, [loadGps]);
 
   const openDirections = (place: NearbyPlace) => {
-    const label = encodeURIComponent(place.name);
-    const url =
-      Platform.OS === 'ios'
-        ? `http://maps.apple.com/?daddr=${place.latitude},${place.longitude}&q=${label}`
-        : `geo:${place.latitude},${place.longitude}?q=${place.latitude},${place.longitude}(${label})`;
-    Linking.openURL(url).catch(() => {
-      Linking.openURL(
-        `https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`
-      );
+    promptOpenDirections(place, {
+      title: t('locationsChooseApp'),
+      appleMaps: t('locationsAppleMaps'),
+      googleMaps: t('locationsGoogleMaps'),
+      waze: t('locationsWaze'),
+      cancel: t('cancel'),
+      failed: t('locationsDirectionsFailed'),
     });
   };
 
