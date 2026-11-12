@@ -3,9 +3,11 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LanguageOnboardingModal } from '../src/components/LanguageOnboardingModal';
+import { MapsOnboardingModal } from '../src/components/MapsOnboardingModal';
 import { PaywallGate } from '../src/components/PaywallGate';
 import { StackBackButton } from '../src/components/StackBackButton';
 import { LanguageProvider, useLanguage } from '../src/context/LanguageContext';
+import { MapsPreferenceProvider } from '../src/context/MapsPreferenceContext';
 import { SubscriptionProvider } from '../src/context/SubscriptionContext';
 import { colors } from '../src/theme/colors';
 
@@ -22,6 +24,7 @@ function RootNavigator() {
     <>
       <StatusBar style="light" />
       <LanguageOnboardingModal />
+      <MapsOnboardingModal />
       <PaywallGate>
         <Stack
           screenOptions={{
@@ -104,9 +107,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <LanguageProvider>
-        <SubscriptionProvider>
-          <RootNavigator />
-        </SubscriptionProvider>
+        <MapsPreferenceProvider>
+          <SubscriptionProvider>
+            <RootNavigator />
+          </SubscriptionProvider>
+        </MapsPreferenceProvider>
       </LanguageProvider>
     </GestureHandlerRootView>
   );

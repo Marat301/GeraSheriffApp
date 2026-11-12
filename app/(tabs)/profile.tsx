@@ -3,14 +3,24 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '../../src/components/AppText';
 import { Screen } from '../../src/components/Screen';
 import { useLanguage } from '../../src/context/LanguageContext';
+import { useMapsPreference } from '../../src/context/MapsPreferenceContext';
 import { useSubscription } from '../../src/context/SubscriptionContext';
 import {
   LANGUAGE_DISPLAY_LABEL,
   PREFERRED_LANGUAGE_DISPLAY_LABEL,
   PREFERRED_LANGUAGES,
 } from '../../src/i18n/languages';
+import { TranslationKey } from '../../src/i18n/translations';
+import { PreferredMapsApp } from '../../src/services/mapsPreference';
 import { colors, radius, spacing } from '../../src/theme/colors';
 import { PreferredLanguage } from '../../src/types';
+
+const MAPS_LABEL_KEY: Record<PreferredMapsApp, TranslationKey> = {
+  default: 'mapsAppDefault',
+  apple: 'mapsAppApple',
+  google: 'mapsAppGoogle',
+  waze: 'mapsAppWaze',
+};
 
 export default function SettingsScreen() {
   const {
@@ -20,6 +30,7 @@ export default function SettingsScreen() {
     setPreferredLanguage,
     setEnglishOnly,
   } = useLanguage();
+  const { preferredMapsApp, availableApps, setPreferredMapsApp } = useMapsPreference();
   const { isPro, bypass, restore } = useSubscription();
 
   const onSelectPreferred = async (lang: PreferredLanguage) => {
@@ -73,6 +84,29 @@ export default function SettingsScreen() {
             >
               <AppText color={active ? colors.white : colors.textSecondary}>
                 {PREFERRED_LANGUAGE_DISPLAY_LABEL[lang]}
+              </AppText>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.section}>
+        <AppText variant="label" style={{ marginBottom: spacing.xs }}>
+          {t('mapsPreference')}
+        </AppText>
+        <AppText muted style={{ marginBottom: spacing.md }}>
+          {t('mapsPreferenceHint')}
+        </AppText>
+        {availableApps.map((app) => {
+          const active = preferredMapsApp === app;
+          return (
+            <Pressable
+              key={app}
+              onPress={() => void setPreferredMapsApp(app)}
+              style={[styles.langChip, active && styles.langActive]}
+            >
+              <AppText color={active ? colors.white : colors.textSecondary}>
+                {t(MAPS_LABEL_KEY[app])}
               </AppText>
             </Pressable>
           );

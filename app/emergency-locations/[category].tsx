@@ -46,7 +46,8 @@ import {
   NearbyPlace,
   toTelUrl,
 } from '../../src/services/nearbyPlaces';
-import { openDefaultDirections } from '../../src/services/openDirections';
+import { useMapsPreference } from '../../src/context/MapsPreferenceContext';
+import { openPreferredDirections } from '../../src/services/openDirections';
 import {
   geocodePlaceQuery,
   readCachedCoords,
@@ -178,6 +179,7 @@ function buildMapHtml(
 export default function EmergencyLocationCategoryScreen() {
   const params = useLocalSearchParams<{ category?: string | string[] }>();
   const { language, t } = useLanguage();
+  const { preferredMapsApp } = useMapsPreference();
   const webRef = useRef<MapWebView>(null);
   const errorMessageRef = useRef(t('locationsLoadError'));
   errorMessageRef.current = t('locationsLoadError');
@@ -364,7 +366,7 @@ export default function EmergencyLocationCategoryScreen() {
   }, [loadGps]);
 
   const openDirections = (place: NearbyPlace) => {
-    void openDefaultDirections(place, {
+    void openPreferredDirections(place, preferredMapsApp, {
       failed: t('locationsDirectionsFailed'),
     });
   };

@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PlanId, useSubscription } from '../context/SubscriptionContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useMapsPreference } from '../context/MapsPreferenceContext';
 import { colors, radius, spacing } from '../theme/colors';
 import { AppText } from './AppText';
 
@@ -22,12 +23,13 @@ const TERMS_URL =
 const PRIVACY_URL = 'https://marat301.github.io/gerasheriff-legal/privacy/';
 
 /**
- * Full-app gate (no free tier). Shown after language onboarding until
+ * Full-app gate (no free tier). Shown after onboarding until
  * the user owns the `gera_sheriff_premium` entitlement.
  */
 export function PaywallGate({ children }: Props) {
   const insets = useSafeAreaInsets();
   const { t, needsLanguageOnboarding } = useLanguage();
+  const { needsMapsOnboarding } = useMapsPreference();
   const { ready, isPro, prices, purchasePlan, restore } = useSubscription();
   const [selected, setSelected] = useState<PlanId>('lifetime');
   const [busy, setBusy] = useState(false);
@@ -40,7 +42,7 @@ export function PaywallGate({ children }: Props) {
     );
   }
 
-  if (isPro || needsLanguageOnboarding) {
+  if (isPro || needsLanguageOnboarding || needsMapsOnboarding) {
     return <>{children}</>;
   }
 
