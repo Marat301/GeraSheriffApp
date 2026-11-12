@@ -46,7 +46,7 @@ import {
   NearbyPlace,
   toTelUrl,
 } from '../../src/services/nearbyPlaces';
-import { promptOpenDirections } from '../../src/services/openDirections';
+import { openDefaultDirections } from '../../src/services/openDirections';
 import {
   geocodePlaceQuery,
   readCachedCoords,
@@ -364,12 +364,7 @@ export default function EmergencyLocationCategoryScreen() {
   }, [loadGps]);
 
   const openDirections = (place: NearbyPlace) => {
-    promptOpenDirections(place, {
-      title: t('locationsChooseApp'),
-      defaultMaps: t('locationsDefaultMaps'),
-      googleMaps: t('locationsGoogleMaps'),
-      waze: t('locationsWaze'),
-      cancel: t('cancel'),
+    void openDefaultDirections(place, {
       failed: t('locationsDirectionsFailed'),
     });
   };
